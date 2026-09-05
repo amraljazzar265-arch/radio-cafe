@@ -1,0 +1,28 @@
+# Files kept locally but NOT part of the deployed site
+data/
+_originals/
+
+# client menu source PDFs — working material, not site content
+*.pdf
+
+# local tooling (Claude Code preview config, scratch)
+.claude/
+hero.jpeg
+/*.png
+/*.txt
+intro.mp4
+
+# large source logos — kept locally, not part of the deployed site
+logo/logo-full.png
+logo/logo-full.webp
+logo/logo-mark.png
+logo/logo.jpeg
+
+# build-time mapping of the original product photos - local only
+assets/manifest.tsv
+
+# local colour trial page — never deployed
+_colors.html
+
+# incoming photo drops — the converted WebPs in assets/menu are what ships
+New data/

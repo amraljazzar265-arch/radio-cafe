@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#180D08" />
+<title>لوحة التحكم — Radio Cafe</title>
+<link rel="icon" type="image/webp" href="logo.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;700;800&family=Tajawal:wght@400&display=swap" />
+<style>
+:root{
+  --espresso:#180D08; --espresso-2:#241408; --espresso-3:#2E1B10;
+  --caramel:#C89563; --caramel-hi:#E3B784;
+  --cream:#F6ECDD; --muted:#B79B7E; --foam:#FBF6EE;
+  --honey:#F0B55A; --honey-hi:#FFD494;
+  --ivory:#F1E2CB; --ivory-hi:#FFFDF8; --ivory-lo:#DFC9A6; --ink:#1E1009;
+  --line:rgba(200,149,99,.20); --line-soft:rgba(200,149,99,.12);
+  --off:#FF9B6E;
+  --font-display:"Baloo Bhaijaan 2", system-ui, sans-serif;
+  --font-body:"Tajawal", system-ui, sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box}
+html{scrollbar-gutter:stable}
+body{margin:0;background:var(--espresso);color:var(--cream);
+  font-family:var(--font-body);-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid var(--honey-hi);outline-offset:2px}
+
+/* ---------- gate ---------- */
+.gate{min-height:100svh;display:grid;place-items:center;padding:24px}
+.gate-in{width:100%;max-width:340px;text-align:center}
+.gate-in img{width:82px;height:82px;border-radius:50%;background:var(--foam);
+  padding:9px;margin-bottom:18px}
+.gate-in h1{font-family:var(--font-display);font-weight:800;font-size:1.5rem;margin:0 0 6px}
+.gate-in p{color:var(--muted);font-size:.9rem;margin:0 0 22px}
+.field{position:relative;margin-bottom:12px}
+.field input{width:100%;padding:15px 16px;border-radius:14px;
+  background:var(--espresso-3);border:1px solid var(--line);color:var(--cream);
+  font-size:1rem;text-align:center}
+.field input::placeholder{color:rgba(183,155,126,.7)}
+.btn{width:100%;padding:15px;border:0;border-radius:999px;cursor:pointer;
+  font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--ink);
+  background:linear-gradient(128deg,var(--ivory-hi),var(--ivory) 58%,var(--ivory-lo));
+  box-shadow:0 10px 26px -8px rgba(0,0,0,.6);transition:transform .18s var(--ease)}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.55;cursor:default;transform:none}
+.msg{margin-top:14px;font-size:.88rem;min-height:1.2em}
+.msg.bad{color:var(--off)}
+.msg.good{color:var(--honey-hi)}
+
+/* ---------- panel ---------- */
+.wrap{max-width:760px;margin-inline:auto;padding:16px 14px 130px}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;
+  padding:14px 4px;margin-bottom:8px;
+  background:linear-gradient(to bottom,var(--espresso) 72%,rgba(24,13,8,0))}
+.top h1{font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin:0;flex:1}
+.top a{color:var(--muted);font-size:.85rem;text-decoration:none;border-bottom:1px solid var(--line)}
+.search{margin:0 4px 16px}
+.search input{width:100%;padding:13px 16px;border-radius:14px;
+  background:var(--espresso-3);border:1px solid var(--line);color:var(--cream);font-size:.95rem}
+
+.cat{font-family:var(--font-display);font-weight:700;font-size:.95rem;color:var(--caramel-hi);
+  margin:22px 4px 10px;display:flex;align-items:center;gap:10px}
+.cat::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+
+.item{display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:10px;
+  border-radius:16px;background:var(--espresso-2);border:1px solid var(--line-soft)}
+.item.off{background:rgba(58,18,8,.32);border-color:rgba(255,155,110,.28)}
+.item.dirty{border-color:var(--honey);box-shadow:0 0 0 1px rgba(240,181,90,.35)}
+.item img{width:52px;height:52px;border-radius:12px;object-fit:cover;flex:0 0 auto;
+  background:var(--espresso-3)}
+.item.off img{filter:saturate(.4) brightness(.6)}
+.it-main{flex:1;min-width:0}
+.it-main b{display:block;font-family:var(--font-display);font-weight:700;font-size:.98rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it-main span{display:block;font-size:.76rem;color:var(--muted)}
+.prices{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.p-in{display:inline-flex;align-items:center;gap:6px;background:var(--espresso-3);
+  border:1px solid var(--line);border-radius:11px;padding:5px 10px}
+.p-in label{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.p-in input{width:62px;padding:4px 0;background:transparent;border:0;text-align:center;
+  font-family:var(--font-display);font-weight:800;font-size:.95rem;color:var(--honey-hi)}
+.p-in input::-webkit-outer-spin-button,.p-in input::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0}
+.p-in input[type=number]{-moz-appearance:textfield}
+
+/* the availability switch */
+.sw{flex:0 0 auto;width:52px;height:31px;border-radius:999px;cursor:pointer;position:relative;
+  border:1px solid var(--line);background:var(--espresso-3);transition:background .22s var(--ease)}
+.sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:23px;height:23px;
+  border-radius:50%;background:var(--muted);transition:transform .22s var(--ease),background .22s}
+.sw[aria-pressed="true"]{background:rgba(240,181,90,.9);border-color:transparent}
+.sw[aria-pressed="true"]::after{background:#2A1509;transform:translateX(-21px)}
+[dir="ltr"] .sw[aria-pressed="true"]::after{transform:translateX(21px)}
+
+/* ---------- save bar ---------- */
+.bar{position:fixed;inset-inline:0;bottom:0;z-index:30;padding:0 14px calc(14px + env(safe-area-inset-bottom));
+  display:flex;justify-content:center;pointer-events:none;
+  transform:translateY(160%);transition:transform .45s var(--ease)}
+.bar.show{transform:translateY(0)}
+.bar-in{pointer-events:auto;width:100%;max-width:540px;display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:22px;
+  background:linear-gradient(180deg,rgba(52,31,17,.97),rgba(32,18,10,.97));
+  border:1px solid rgba(240,181,90,.45);
+  box-shadow:0 18px 44px -14px rgba(0,0,0,.85)}
+.bar-in .count{flex:1;font-size:.88rem;color:var(--muted)}
+.bar-in .count b{color:var(--honey-hi);font-family:var(--font-display)}
+.bar-in .btn{width:auto;padding:12px 22px}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:12px 16px;border-radius:999px;cursor:pointer;font-size:.88rem}
+.hidden{display:none !important}
+.spin{display:inline-block;width:15px;height:15px;border-radius:50%;
+  border:2px solid rgba(30,16,9,.35);border-top-color:var(--ink);
+  animation:spin .7s linear infinite;vertical-align:-2px;margin-inline-end:7px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.note{color:var(--muted);font-size:.82rem;line-height:1.7;margin:18px 4px 0;
+  padding:14px;border-radius:14px;background:var(--espresso-2);border:1px solid var(--line-soft)}
+
+/* ============================================================
+   مؤقّت — إلى أن تُرفع صور Radio Cafe
+   مسارات الصور في الكود لم تتغيّر إطلاقاً: ضع الصور بنفس الأسماء
+   (assets/menu/… و hero-…) وتظهر وحدها بلا أي تعديل.
+   حتى ذلك الحين تُستبدل الصورة الناقصة بتدرّج لوني بدل أيقونة
+   الصورة المكسورة. للحذف لاحقاً: امسح هذا البلوك وبلوك الـ script
+   الذي يلي وسم إغلاق الستايل مباشرة.
+   ============================================================ */
+img.img-missing{
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgba(200,149,99,.20), transparent 62%),
+    linear-gradient(150deg,#3A2415,#241408 72%);
+  color:transparent;          /* لا يظهر نص alt المكسور */
+}
+.hero-bg{
+  background:
+    radial-gradient(90% 70% at 70% 10%, rgba(200,149,99,.22), transparent 60%),
+    linear-gradient(160deg,#3A2415,#180D08 75%);
+}
+.hero-bg img.img-missing{opacity:0}
+</style>
+<script>
+/* مؤقّت مع طبقة img-missing أعلاه — يُحذف معها بعد رفع الصور.
+   الصورة الناقصة تأخذ الصنف، ومصدرها يُستبدل ببكسل شفاف حتى لا
+   يرسم المتصفّح أيقونة الصورة المكسورة فوق التدرّج. */
+(function () {
+  var BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+  addEventListener("error", function (e) {
+    var el = e.target;
+    if (!el || el.tagName !== "IMG" || el.src === BLANK) return;
+    el.classList.add("img-missing");
+    el.src = BLANK;
+  }, true);
+})();
+</script>
+
+</head>
+<body>
+
+<!-- ===== password ===== -->
+<section class="gate" id="gate">
+  <div class="gate-in">
+    <img src="logo.webp" alt="" width="256" height="256" />
+    <h1>لوحة التحكم</h1>
+    <p>أدخل كلمة السر لتعديل الأسعار والتوفّر</p>
+    <div class="field"><input type="password" id="pw" placeholder="كلمة السر"
+      autocomplete="current-password" enterkeyhint="go" /></div>
+    <button class="btn" type="button" id="enter">دخول</button>
+    <div class="msg" id="gateMsg"></div>
+  </div>
+</section>
+
+<!-- ===== panel ===== -->
+<main class="wrap hidden" id="panel">
+  <div class="top">
+    <h1>الأسعار والتوفّر</h1>
+    <a href="/" target="_blank" rel="noopener">عرض الموقع ↗</a>
+  </div>
+  <div class="search"><input type="search" id="q" placeholder="ابحث عن صنف…" /></div>
+  <div id="list"></div>
+  <p class="note">
+    زر المفتاح يخفي الصنف من الطلب ويعرضه بالمنيو مكتوباً عليه «غير متوفّر» —
+    استعمله لما تخلص كمية اليوم، وأعده لما ترجع.<br />
+    بعد الحفظ يحتاج الموقع نصف دقيقة تقريباً حتى يظهر التعديل للزبائن.
+  </p>
+</main>
+
+<div class="bar" id="bar">
+  <div class="bar-in">
+    <span class="count" id="count"></span>
+    <button class="ghost" type="button" id="undo">تراجع</button>
+    <button class="btn" type="button" id="save">حفظ</button>
+  </div>
+</div>
+
+<script src="menu.js"></script>
+<script>
+/* ============================================================
+   The panel edits a copy of the menu and sends the whole thing back. It
+   never patches individual fields: the file on the server is the record,
+   and a full replacement cannot leave it half-written.
+   ============================================================ */
+const CATS = [
+  {id:"mojito", ar:"موهيتو"},
+  {id:"shake",  ar:"ميلك شيك"},
+  {id:"sweets", ar:"حلويات"},
+  {id:"hot",    ar:"مشروبات ساخنة"},
+  {id:"cold",   ar:"قهوة باردة"},
+  {id:"juice",  ar:"عصائر فريش"},
+  {id:"panpop", ar:"PanPop"},
+];
+const IMG = f => "assets/menu/" + f.replace(/\.(jpe?g|png)$/i, ".webp");
+const money = n => Number(n).toLocaleString("en-US");
+
+const original = JSON.parse(JSON.stringify(P));   // for "تراجع" and for diffing
+let draft = JSON.parse(JSON.stringify(P));
+let pw = "";
+
+const $ = id => document.getElementById(id);
+const listEl = $("list"), barEl = $("bar"), countEl = $("count");
+
+/* ---- password ---- */
+$("enter").addEventListener("click", enter);
+$("pw").addEventListener("keydown", e => { if(e.key === "Enter") enter(); });
+async function enter(){
+  const msg = $("gateMsg");
+  pw = $("pw").value.trim();
+  if(!pw){ msg.textContent = "اكتب كلمة السر"; msg.className = "msg bad"; return; }
+  msg.textContent = "لحظة…"; msg.className = "msg";
+  try{
+    const r = await fetch("/api/save", {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ password: pw, check: true })
+    });
+    if(r.status === 401){ msg.textContent = "كلمة السر غير صحيحة"; msg.className = "msg bad"; return; }
+    if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.status);
+    sessionStorage.setItem("bc_admin", pw);
+    $("gate").classList.add("hidden");
+    $("panel").classList.remove("hidden");
+    render();
+  }catch(e){
+    msg.textContent = "تعذّر الاتصال بالخادم: " + e.message;
+    msg.className = "msg bad";
+  }
+}
+// a reload inside the same tab should not ask again
+if(sessionStorage.getItem("bc_admin")){
+  $("pw").value = sessionStorage.getItem("bc_admin");
+  enter();
+}
+
+/* ---- rendering ---- */
+$("q").addEventListener("input", render);
+function render(){
+  const q = $("q").value.trim();
+  listEl.innerHTML = "";
+  CATS.forEach(c => {
+    const items = draft.filter(p => p.cat === c.id &&
+      (!q || p.ar.includes(q) || (p.en||"").toLowerCase().includes(q.toLowerCase())));
+    if(!items.length) return;
+    const h = document.createElement("div");
+    h.className = "cat"; h.textContent = c.ar;
+    listEl.appendChild(h);
+    items.forEach(p => listEl.appendChild(itemRow(p)));
+  });
+  paintBar();
+}
+function itemRow(p){
+  const i = draft.indexOf(p);
+  const el = document.createElement("div");
+  el.className = "item" + (p.soldout ? " off" : "") + (changed(p) ? " dirty" : "");
+  el.innerHTML =
+    '<img src="'+IMG(p.img)+'" alt="" loading="lazy" />'+
+    '<div class="it-main">'+
+      '<b>'+p.ar+'</b><span>'+(p.en||"")+'</span>'+
+      '<div class="prices">'+priceInputs(p, i)+'</div>'+
+    '</div>'+
+    '<button class="sw" type="button" role="switch" aria-pressed="'+(!p.soldout)+'" '+
+      'aria-label="متوفّر" data-sw="'+i+'"></button>';
+  return el;
+}
+/* An item priced by options is edited option by option; a flat one has a
+   single field. The `price` string on a card is rebuilt from those numbers,
+   so the card and the sheet can never disagree. */
+function priceInputs(p, i){
+  if(p.opts) return p.opts.map((o,oi) =>
+    '<span class="p-in"><label>'+o.ar+'</label>'+
+    '<input type="number" lang="en" inputmode="numeric" min="0" step="5" value="'+o.p+'" '+
+    'data-i="'+i+'" data-opt="'+oi+'" /></span>').join("")
+    + exList(p).map((e,gi) => '<span class="p-in"><label>'+e.ar+'</label>'+
+        '<input type="number" lang="en" inputmode="numeric" min="0" step="5" value="'+e.p+'" '+
+        'data-i="'+i+'" data-extra="'+gi+'" /></span>').join("");
+  return '<span class="p-in"><label>السعر</label>'+
+    '<input type="number" lang="en" inputmode="numeric" min="0" step="5" value="'+(parseInt(p.price,10)||0)+'" '+
+    'data-i="'+i+'" data-flat="1" /></span>';
+}
+
+listEl.addEventListener("input", e => {
+  const t = e.target;
+  if(t.tagName !== "INPUT") return;
+  const p = draft[+t.dataset.i], v = Math.max(0, parseInt(t.value,10) || 0);
+  if(t.dataset.opt !== undefined){
+    p.opts[+t.dataset.opt].p = v;
+    p.price = rebuildPrice(p);
+    if(p.boba) p.boba = String(p.opts[p.opts.length-1].p);
+  } else if(t.dataset.extra !== undefined){
+    exList(p)[+t.dataset.extra].p = v;
+    if(p.note) p.note = noteOf(p);
+  } else {
+    p.price = String(v);
+  }
+  t.closest(".item").classList.toggle("dirty", changed(p));
+  paintBar();
+});
+listEl.addEventListener("click", e => {
+  const sw = e.target.closest("[data-sw]");
+  if(!sw) return;
+  const p = draft[+sw.dataset.sw];
+  p.soldout = !p.soldout;
+  if(!p.soldout) delete p.soldout;          // absent, not false: keep the file clean
+  sw.setAttribute("aria-pressed", String(!p.soldout));
+  const row = sw.closest(".item");
+  row.classList.toggle("off", !!p.soldout);
+  row.classList.toggle("dirty", changed(p));
+  paintBar();
+});
+
+/* An item can offer several independent extras (the espresso: مبيّض and نسلة),
+   so each one gets its own field and the card's note is rewritten from all of
+   them together -- otherwise editing one price would erase the other's line. */
+const exList = p => p.extras || (p.extra ? [p.extra] : []);
+/* an Arabic comma, not a middot: a middot sitting against "ل.س" reads as a
+   stray Arabic zero on the card */
+const noteOf = p => exList(p)
+  .map(e => "إضافة " + e.ar.replace(/^إضافة\s*/, "") + " " + e.p + " ل.س")
+  .join("، ");
+
+/* the card's price line is derived, never typed */
+function rebuildPrice(p){
+  const nums = p.opts.map(o => o.p);
+  /* a boba drink carries its own "إضافة بوبا NNN" tab on the card, so its
+     price line stays the base number: joining both would print the same
+     number twice, once in the line and once on the tab */
+  if(p.boba) return String(nums[0]);
+  if(p.opts.length === 2 && /سنجل/.test(p.opts[0].ar))
+    return nums[0]+" سنجل / "+nums[1]+" دبل";
+  return nums.join(" / ");
+}
+const changed = p => JSON.stringify(p) !== JSON.stringify(original[draft.indexOf(p)]);
+const changedList = () => draft.filter(changed);
+
+function paintBar(){
+  const n = changedList().length;
+  countEl.innerHTML = n ? "<b>"+n+"</b> تعديل غير محفوظ" : "";
+  barEl.classList.toggle("show", n > 0);
+}
+
+/* ---- undo / save ---- */
+$("undo").addEventListener("click", () => {
+  if(!changedList().length) return;
+  if(!confirm("تراجع عن كل التعديلات غير المحفوظة؟")) return;
+  draft = JSON.parse(JSON.stringify(original));
+  render();
+});
+$("save").addEventListener("click", async () => {
+  const btn = $("save"), n = changedList().length;
+  if(!n) return;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>جاري الحفظ';
+  try{
+    const r = await fetch("/api/save", {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ password: pw, menu: draft })
+    });
+    const body = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(body.error || ("خطأ "+r.status));
+    // the saved state becomes the new baseline, so the bar empties honestly
+    original.length = 0;
+    JSON.parse(JSON.stringify(draft)).forEach(x => original.push(x));
+    btn.textContent = "تم الحفظ ✓";
+    countEl.textContent = "سيظهر على الموقع خلال نصف دقيقة تقريباً";
+    setTimeout(() => { btn.disabled = false; btn.textContent = "حفظ"; render(); }, 2600);
+  }catch(e){
+    btn.disabled = false; btn.textContent = "حفظ";
+    countEl.innerHTML = '<span style="color:var(--off)">تعذّر الحفظ: '+e.message+'</span>';
+  }
+});
+
+/* leaving with unsaved prices is almost always a mistake */
+addEventListener("beforeunload", e => {
+  if(changedList().length){ e.preventDefault(); e.returnValue = ""; }
+});
+</script>
+</body>
+</html>

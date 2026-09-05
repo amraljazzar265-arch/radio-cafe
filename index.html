@@ -1,0 +1,2704 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Radio Cafe — منيو</title>
+<meta name="description" content="منيو Radio Cafe — ألذ القهوة المختصة والمشروبات الباردة والميلك شيك الطازج." />
+<meta name="theme-color" content="#180D08" />
+<link rel="icon" type="image/webp" href="logo.webp" />
+<link rel="apple-touch-icon" href="logo.webp" />
+<link rel="preload" as="font" type="font/ttf" href="The-originals.ttf" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- only the weights actually used, loaded without blocking first paint -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Baloo+Bhaijaan+2:wght@600;700;800&family=Fredoka:wght@500&family=Tajawal:wght@400&display=swap" onload="this.rel='stylesheet'" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Baloo+Bhaijaan+2:wght@600;700;800&family=Fredoka:wght@500&family=Tajawal:wght@400&display=swap" /></noscript>
+<style>
+/* خط شريط الفئات — ملف محلي بجذر المشروع */
+@font-face{
+  font-family:"The Originals";
+  src:url("The-originals.ttf") format("truetype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* ============================================================
+   RADIO CAFE — Design tokens
+   ============================================================ */
+:root{
+  --espresso:#180D08;      /* page background (deepest) */
+  --espresso-3:#2E1B10;    /* card / elevated */
+  --caramel:#C89563;       /* primary accent */
+  --caramel-hi:#E3B784;    /* bright accent / highlight */
+  --latte:#D9B892;         /* mid tan */
+  --cream:#F6ECDD;         /* primary text */
+  --muted:#B79B7E;         /* secondary text */
+  --line:rgba(200,149,99,.20);
+  --line-soft:rgba(200,149,99,.12);
+  --foam:#FBF6EE;
+  --honey:#F0B55A;         /* prices only — warmer and brighter than caramel */
+  --honey-hi:#FFD494;
+  /* Action is light, not a hue. Three shades of the cream already in the
+     palette, so nothing can clash by definition -- see the Ordering block. */
+  --ivory:#F1E2CB;         /* the action surface */
+  --ivory-hi:#FFFDF8;      /* its lit edge */
+  --ivory-lo:#DFC9A6;      /* its shaded edge */
+  --ink:#1E1009;           /* the only text that sits on ivory */
+
+  --font-display:"Baloo Bhaijaan 2", system-ui, sans-serif;
+  --font-body:"Tajawal", system-ui, sans-serif;
+  --font-latin:"Fredoka", system-ui, sans-serif;
+  --font-brand:"The Originals", var(--font-display);
+  /* خط العرض: للعناوين والأسماء والأسعار فقط. ملف بوزن واحد (400) وبلا
+     تشكيل — لذلك لا يُستعمل في النصوص الصغيرة ولا في أي نص فيه شدّة. */
+  /* خطّ الطابع الشرقي القديم — لعناوين الهيرو، ويمكن تعميمه لاحقاً */
+  --font-vintage:"Aref Ruqaa", "The Originals", Georgia, serif;
+
+  --maxw:1200px;
+  --radius:22px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  /* Sheets get their own pair. --sheet-in starts fast and spends most of its
+     time decelerating, so the panel arrives and settles instead of stopping;
+     --sheet-out leaves briskly, because a slow dismissal feels unresponsive. */
+  --sheet-in:cubic-bezier(.32,.72,0,1);
+  --sheet-out:cubic-bezier(.4,.02,.7,.2);
+
+  --gal-radius:440px;
+  --gal-cardw:280px;
+  --gal-cardh:380px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--espresso);
+  color:var(--cream);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--caramel-hi);outline-offset:3px;border-radius:6px}
+
+/* Ambient warm glow washes anchored to the background */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60% 45% at 82% 8%, rgba(200,149,99,.18), transparent 60%),
+    radial-gradient(55% 40% at 10% 92%, rgba(74,46,30,.55), transparent 60%),
+    radial-gradient(40% 30% at 50% 50%, rgba(46,27,16,.35), transparent 70%);
+}
+
+/* ============================================================
+   Rising heartbeats (signature ambient)
+   Many heart outlines drift up the whole page, bottom to top, the
+   way the boba pearls did -- but each one beats: three quick pulses,
+   a rest, repeat. Built by JS with random size / lane / speed.
+   Two nested animations, transform + opacity only -- no blur, no paint.
+   ============================================================ */
+.hearts{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hb{position:absolute;bottom:-8vh;will-change:transform,opacity;
+  animation:hbRise linear infinite}
+.hb svg{width:100%;height:100%;display:block;overflow:visible;
+  fill:none;stroke:url(#hbGrad);stroke-width:1.6;stroke-linejoin:round;
+  transform-origin:50% 55%;
+  animation:hbBeat 2.9s ease-in-out infinite}
+/* the drift up the page -- opacity fades in off the bottom edge and out
+   before the top, so a heart never pops or clips */
+@keyframes hbRise{
+  0%  {transform:translate3d(0,0,0);opacity:0}
+  10% {opacity:.5}
+  82% {opacity:.36}
+  100%{transform:translate3d(var(--drift,24px),-118vh,0);opacity:0}
+}
+/* one beat, then rest -- the whole cycle loops for the heart's climb */
+@keyframes hbBeat{
+  0%  {transform:scale(1)}
+  8%  {transform:scale(1.19)}
+  16% {transform:scale(1)}
+  100%{transform:scale(1)}
+}
+
+/* ============================================================
+   Layout helpers
+   ============================================================ */
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:22px;position:relative;z-index:1}
+section{position:relative;z-index:1}
+.eyebrow{
+  font-family:var(--font-brand);letter-spacing:.28em;text-transform:uppercase;
+  font-size:.72rem;color:var(--caramel);font-weight:400;
+}
+.sec-head{text-align:center;margin-bottom:40px}
+.sec-head h2{
+  font-family:var(--font-brand);font-weight:400;color:var(--cream);
+  font-size:clamp(1.9rem,5vw,3rem);margin:.35em 0 .2em;line-height:1.15;
+}
+.sec-head p{color:var(--muted);max-width:44ch;margin:0 auto;font-size:1rem}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.nav{
+  position:sticky;top:0;z-index:60;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  background:linear-gradient(to bottom, rgba(24,13,8,.92), rgba(24,13,8,.66));
+  border-bottom:1px solid var(--line-soft);
+}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:70px}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-badge{width:52px;height:52px;border-radius:50%;background:var(--foam);
+  display:grid;place-items:center;overflow:hidden;flex-shrink:0;
+  box-shadow:0 6px 18px rgba(0,0,0,.4),0 0 0 4px rgba(200,149,99,.14)}
+.brand-badge img{width:86%;height:86%;object-fit:contain}
+.brand-word{display:flex;flex-direction:column;line-height:1}
+.brand-word b{font-family:var(--font-brand);font-weight:400;font-size:1.32rem;
+  letter-spacing:.05em;color:var(--cream);text-transform:uppercase}
+.brand-word i{font-family:var(--font-brand);font-style:normal;font-weight:400;
+  font-size:.64rem;letter-spacing:.42em;text-transform:uppercase;color:var(--caramel);margin-top:3px}
+.nav-links{display:flex;gap:26px;align-items:center}
+.nav-links a{font-family:var(--font-display);font-weight:600;color:var(--muted);
+  font-size:.98rem;transition:color .2s}
+.nav-links a:hover{color:var(--cream)}
+@media(max-width:760px){.nav-links{display:none}}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+/* svh = the viewport with the phone's address bar showing, so the hero
+   never overshoots the screen and clips its own scroll cue.
+   No photo layer: the hero is a clear pane, and what shows behind the
+   headline is the page's own warm glow and the rising hearts. */
+.hero{position:relative;min-height:82vh;min-height:82svh;display:flex;align-items:center;
+  padding-block:80px 96px;overflow:hidden}
+/* One column on a phone -- words, then the photo, as in the mock-up. Two from
+   900px up, and because the page is RTL the first column lands on the right,
+   which mirrors the reference layout rather than copying it. */
+.hero-in{position:relative;z-index:2;display:grid;gap:clamp(30px,5vw,60px);
+  grid-template-columns:1fr;align-items:center;text-align:center;
+  max-width:var(--maxw);margin-inline:auto}
+@media(min-width:900px){
+  .hero-in{grid-template-columns:1.02fr .98fr;text-align:start}
+  .hero-in .hero-sub{margin-inline:0}
+  .hero-in .hero-cta{justify-content:flex-start}
+}
+
+/* ---- the photo card ----
+   A thin caramel frame with the picture set inside it, and one corner scooped
+   INWARD rather than rounded off -- that bite is what gives the card its shape.
+   Both numbers are variables: --shot-r rounds the other three corners,
+   --shot-bite is how deep the scoop cuts. */
+.hero-shot{--shot-r:10.5%;--shot-bite:17%;--shot-gap:13px;
+  margin:0;justify-self:center;width:100%;max-width:460px;
+  perspective:1000px}
+.hero-shot-frame{position:relative;aspect-ratio:1/1;padding:var(--shot-gap);
+  /* the outline is drawn by the SVG below, which can follow the split corners
+     -- a border cannot leave the rounded-rectangle family */
+  background:transparent;
+  transform-style:preserve-3d;
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.hero-shot img{width:100%;height:100%;object-fit:cover;display:block;
+  clip-path:url(#shotClip);
+  transition:transform .5s var(--ease)}
+/* the thin line, tracing the very same silhouette one step further out */
+.hero-shot-outline{position:absolute;inset:0;width:100%;height:100%;
+  overflow:visible;pointer-events:none;z-index:2;
+  filter:drop-shadow(0 24px 40px rgba(0,0,0,.55))}
+.hero-shot-outline path{fill:none;stroke:rgba(200,149,99,.55);stroke-width:1;
+  transition:stroke .4s var(--ease)}
+.hero-shot.is-live .hero-shot-outline path{stroke:rgba(227,183,132,.9)}
+/* a soft caramel gleam that follows the pointer across the glass */
+.hero-shot-sheen{position:absolute;inset:var(--shot-gap);
+  clip-path:url(#shotClip);
+  pointer-events:none;opacity:0;transition:opacity .4s var(--ease);
+  background:radial-gradient(circle 40% at var(--mx,50%) var(--my,50%),
+    rgba(246,236,221,.20),rgba(227,183,132,.07) 45%,transparent 70%)}
+.hero-shot.is-live .hero-shot-sheen{opacity:1}
+.hero-shot.is-live .hero-shot-outline{filter:drop-shadow(0 30px 50px rgba(0,0,0,.6))
+  drop-shadow(0 0 22px rgba(227,183,132,.45))}
+/* it breathes while nothing is touching it */
+@media (prefers-reduced-motion:no-preference){
+  .hero-shot-frame{animation:shotFloat 7s ease-in-out infinite}
+  .hero-shot.is-live .hero-shot-frame{animation:none}
+}
+@keyframes shotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+@media(max-width:899px){
+  .hero-shot{max-width:min(78vw,380px);--shot-gap:10px}
+}
+/* the cue leaves the grid so the two columns stay level */
+.hero>.scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3}
+/* the small line above the headline -- a rule on each side, no letter-
+   spacing (it breaks Arabic joining) */
+.hero-eyebrow{display:inline-flex;align-items:center;gap:14px;margin-bottom:18px;
+  font-family:var(--font-vintage);font-weight:400;
+  font-size:clamp(.86rem,2vw,1.06rem);color:var(--caramel-hi);
+  text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.hero-eyebrow::before,.hero-eyebrow::after{content:"";width:clamp(24px,7vw,44px);height:1px;
+  background:linear-gradient(90deg,transparent,var(--caramel),transparent)}
+/* Aref Ruqaa is calligraphic -- it needs generous leading or the ascenders
+   collide with the line above */
+.hero h1{font-family:var(--font-vintage);font-weight:700;
+  font-size:clamp(2.2rem,7vw,4.7rem);line-height:1.3;margin:0 0 .38em;
+  color:var(--cream);text-shadow:0 3px 26px rgba(0,0,0,.62),0 1px 3px rgba(0,0,0,.55)}
+.hero h1 .accent{color:var(--caramel-hi)}
+.hero-sub{font-family:var(--font-body);font-weight:400;
+  font-size:clamp(1rem,2.4vw,1.22rem);line-height:1.9;color:var(--latte);
+  max-width:42ch;margin:0 auto 30px;text-shadow:0 1px 12px rgba(0,0,0,.6)}
+/* one CTA -- ivory, the page's "go look" surface */
+.hero-cta{display:flex;justify-content:center;margin-bottom:34px}
+.hero-btn{display:inline-flex;align-items:center;gap:9px;
+  padding:14px 32px;border-radius:999px;cursor:pointer;
+  font-family:var(--font-vintage);font-weight:700;font-size:1.02rem;color:var(--ink);
+  background:linear-gradient(128deg,var(--ivory-hi),var(--ivory) 58%,var(--ivory-lo));
+  box-shadow:0 14px 32px -10px rgba(0,0,0,.6),0 0 30px -14px rgba(246,236,221,.5),
+             inset 0 1px 0 rgba(255,255,255,.92);
+  transition:transform .2s var(--ease),filter .2s}
+.hero-btn:hover{transform:translateY(-2px);filter:brightness(1.04)}
+.hero-btn:active{transform:translateY(0) scale(.97)}
+.scroll-cue{display:inline-flex;flex-direction:column;align-items:center;gap:8px;
+  text-align:center;
+  color:var(--latte);font-family:var(--font-vintage);font-weight:400;font-size:.9rem;
+  text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.scroll-cue .mouse{width:24px;height:38px;border:2px solid rgba(246,236,221,.5);
+  border-radius:14px;position:relative}
+.scroll-cue .mouse::after{content:"";position:absolute;top:7px;left:50%;transform:translateX(-50%);
+  width:4px;height:8px;border-radius:2px;background:var(--caramel-hi);
+  animation:wheel 1.6s ease-in-out infinite}
+@keyframes wheel{0%{opacity:0;top:7px}40%{opacity:1}100%{opacity:0;top:18px}}
+
+/* ============================================================
+   Intro — the name rains down, a heart draws itself out of hearts
+   ============================================================ */
+html.no-intro .intro{display:none}
+html.intro-on{overflow:hidden}
+.intro{position:fixed;inset:0;z-index:9999;background:var(--espresso);
+  transition:opacity .8s var(--ease),visibility .8s var(--ease)}
+.intro.is-out{opacity:0;visibility:hidden;pointer-events:none}
+.intro canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* ============================================================
+   Featured circular 3D gallery
+   ============================================================ */
+.featured{background:linear-gradient(to bottom,transparent, rgba(46,27,16,.35), transparent)}
+/* One screen tall: the ring is turned by a horizontal drag/swipe, not by the
+   page scroll, so the section no longer needs 400vh of scroll track. */
+.gal-scroll{height:100svh;min-height:540px;position:relative}
+.gal-sticky{position:sticky;top:0;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;overflow:hidden}
+/* The heading sits in the hollow of the arc -- under the card at the crest,
+   between the two that have slid away -- so it reads as the middle of the
+   invisible circle the cards are travelling on. It is pinned to the card
+   rather than to the viewport, so it follows the crest on every screen. */
+.gal-head{position:absolute;z-index:5;width:100%;padding-inline:20px;text-align:center;
+  top:calc(50% - 5vh + (var(--gal-cardh) / 2) + clamp(26px,4.6vh,54px))}
+.gal-head .eyebrow{display:block;font-size:clamp(.84rem,1.6vw,1.05rem);letter-spacing:.34em}
+.gal-head h2{font-family:var(--font-brand);font-weight:400;
+  font-size:clamp(1.8rem,5.2vw,3rem);line-height:1.25;margin:.44em 0 0;color:var(--cream)}
+.gal-head p{color:var(--muted);font-size:clamp(.9rem,1.5vw,.98rem);margin:1.35em 0 0}
+
+/* The names ride the same arc as the cards, but flattened onto one line above
+   them, so the card at the crest always has its own name directly overhead.
+   Like the heading below, the row is measured from the card rather than from
+   the top of the screen: pinned to the viewport it drifted a long way clear of
+   the cards on a tall phone, where the arc sits low but the row stayed put. */
+.gal-names{position:absolute;z-index:5;width:100%;
+  top:calc(50% - 5vh - (var(--gal-cardh) / 2) - clamp(24px,5.5vh,58px) - 3.1em);
+  height:3.1em;overflow:visible;pointer-events:none}
+/* .gal-name stays the travelling layer (JS writes translateX here); the pill
+   inside is the visible oval so the transform never fights the styling */
+.gal-name{position:absolute;inset-inline:0;top:0;text-align:center;white-space:nowrap;
+  will-change:transform,opacity}
+/* the name in its oval -- a dark pill at rest, ringed by a turning gold
+   ribbon once its card reaches the crest */
+@property --gal-ring{syntax:"<angle>";initial-value:0deg;inherits:false}
+.gal-pill{position:relative;isolation:isolate;--gal-ring:0deg;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:.42em 1.35em;border-radius:999px;
+  font-family:var(--font-brand);font-weight:400;font-size:clamp(1rem,2.3vw,1.4rem);
+  line-height:1.15;white-space:nowrap;color:var(--muted);
+  background:rgba(20,11,6,.66);border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  transition:color .45s var(--ease),background .45s var(--ease),border-color .45s var(--ease)}
+.gal-pill::before,.gal-pill::after{content:"";position:absolute;border-radius:inherit;
+  pointer-events:none;opacity:0;transition:opacity .45s var(--ease)}
+/* the crisp ribbon, exactly on the edge -- warm gold, no white glint */
+.gal-pill::after{inset:0;padding:1.5px;z-index:2;
+  background:conic-gradient(from var(--gal-ring),
+    rgba(200,149,99,0) 0%, var(--honey) 14%, var(--caramel-hi) 28%, var(--honey) 42%, rgba(200,149,99,0) 52%,
+    rgba(200,149,99,0) 62%, var(--honey) 76%, var(--caramel-hi) 88%, rgba(200,149,99,0) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude}
+/* the outer glow bloom, behind the pill -- kept faint */
+.gal-pill::before{inset:-4px;z-index:-1;filter:blur(6px);
+  background:conic-gradient(from var(--gal-ring),
+    rgba(200,149,99,0) 0%, rgba(240,181,90,.5) 16%, rgba(227,183,132,.5) 30%, rgba(240,181,90,.42) 44%, rgba(200,149,99,0) 56%,
+    rgba(200,149,99,0) 72%, rgba(240,181,90,.42) 86%, rgba(200,149,99,0) 100%)}
+.gal-name.is-front .gal-pill{color:var(--cream);background:rgba(42,21,9,.82);border-color:transparent}
+.gal-name.is-front .gal-pill::before{opacity:.4}
+.gal-name.is-front .gal-pill::after{opacity:.8}
+@media (prefers-reduced-motion:no-preference){
+  .gal-name.is-front .gal-pill::before,
+  .gal-name.is-front .gal-pill::after{animation:galRingSpin 2.8s linear infinite}
+}
+@keyframes galRingSpin{to{--gal-ring:360deg}}
+.gal-stage{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  perspective:2000px;
+  /* the browser keeps vertical panning, we get the horizontal gesture */
+  touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none}
+.gal-stage.is-dragging{cursor:grabbing}
+.gal-stage img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
+/* lifted, so the hollow under the crest has room for the heading */
+.gal-ring{position:relative;width:var(--gal-cardw);height:var(--gal-cardh);
+  transform:translateY(-5vh)}
+.gal-item{position:absolute;inset:0;width:var(--gal-cardw);height:var(--gal-cardh);
+  border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--line);background:var(--espresso-3);
+  box-shadow:0 30px 60px rgba(0,0,0,.5);will-change:transform,opacity;
+  transition:box-shadow .5s var(--ease),border-color .5s var(--ease)}
+/* edge glow only on the centred (front-facing) card */
+.gal-item.is-front{border-color:var(--caramel-hi);
+  box-shadow:0 30px 60px rgba(0,0,0,.5),0 0 0 1.5px var(--caramel-hi),0 0 46px 8px rgba(227,183,132,.55)}
+.gal-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity .45s var(--ease)}
+.gal-item img.is-in{opacity:1}
+/* on a short screen the heading already reaches the foot of the section, and
+   it carries the same instruction, so the separate chip stands down */
+/* ============================================================
+   Menu
+   ============================================================ */
+.menu{padding-block:clamp(60px,9vh,110px)}
+.tabs{position:sticky;top:70px;z-index:40;display:flex;gap:9px;flex-wrap:wrap;
+  justify-content:center;padding:14px;margin-bottom:38px;
+  background:linear-gradient(to bottom,rgba(24,13,8,.95),rgba(24,13,8,.7));
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:18px;border:1px solid var(--line-soft)}
+@property --tab-angle{syntax:"<angle>";initial-value:0deg;inherits:false}
+.tab{position:relative;--tab-angle:0deg;
+  background:rgba(24,13,8,.85);border:1px solid var(--line);color:var(--muted);
+  padding:9px 17px;border-radius:999px;font-family:var(--font-brand);font-weight:400;
+  font-size:.92rem;transition:color .2s var(--ease),background .3s var(--ease)}
+/* animated glowing conic-gradient border — warmed to the café palette */
+.tab::before,.tab::after{content:"";position:absolute;inset:-2px;border-radius:inherit;
+  z-index:-1;pointer-events:none;
+  background:conic-gradient(from var(--tab-angle),
+    rgba(200,149,99,0) 0%, var(--caramel) 10%, rgba(200,149,99,0) 27%,
+    rgba(200,149,99,0) 50%, var(--caramel-hi) 62%, rgba(227,183,132,0) 80%);
+  opacity:.3;transition:opacity .3s var(--ease)}
+.tab::before{inset:-6px;filter:blur(10px);opacity:.16}
+.tab:hover{color:var(--cream)}
+.tab:hover::after,.tab:focus-visible::after,.tab[aria-selected="true"]::after{opacity:1}
+.tab:hover::before,.tab:focus-visible::before,.tab[aria-selected="true"]::before{opacity:.55}
+.tab[aria-selected="true"]{background:var(--caramel);color:#2a1509;border-color:transparent}
+@media (prefers-reduced-motion:no-preference){
+  .tab:hover::before,.tab:hover::after,
+  .tab:focus-visible::before,.tab:focus-visible::after,
+  .tab[aria-selected="true"]::before,.tab[aria-selected="true"]::after{
+    animation:tabGlow 4s linear infinite}
+}
+@keyframes tabGlow{to{--tab-angle:360deg}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:36px}
+.cat-title{grid-column:1/-1;display:flex;align-items:center;gap:14px;
+  margin:22px 0 2px;font-family:var(--font-brand);font-weight:400;
+  font-size:1.5rem;color:var(--cream)}
+.cat-title::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+.cat-title small{font-family:var(--font-brand);font-size:.72rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--caramel);font-weight:600}
+
+/* 3D hover-lift card */
+.card{position:relative;--card-angle:0deg;--glow-speed:2.2s;
+  /* A leaf, not a rectangle: the top-left and bottom-right corners open into
+     a wide quarter-ellipse while the other two keep the house radius. The two
+     numbers are the sweep -- how far along the edge it reaches horizontally
+     and vertically -- and they are held in variables because the glow behind
+     the card has to trace the same outline. */
+  --leaf-h:48%; --leaf-v:32%;
+  aspect-ratio:3/4;background:var(--espresso-3);
+  border-radius:var(--leaf-h) var(--radius) var(--leaf-h) var(--radius)
+              / var(--leaf-v) var(--radius) var(--leaf-v) var(--radius);
+  will-change:transform;
+  box-shadow:0 16px 34px -16px rgba(0,0,0,.6);
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.card:hover{box-shadow:0 44px 66px -22px rgba(0,0,0,.72)}
+.card.hidden{display:none}
+/* glowing conic border — crisp ring ON the edge (::after) + outer bloom behind the image (::before). Never bleeds inside. */
+@property --card-angle{syntax:"<angle>";initial-value:0deg;inherits:false}
+/* crisp rotating ring exactly on the border */
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  padding:2px;pointer-events:none;z-index:3;
+  background:conic-gradient(from var(--card-angle),
+    rgba(200,149,99,0) 0%, var(--caramel) 11%, rgba(227,183,132,.95) 22%, var(--caramel) 33%, rgba(200,149,99,0) 47%,
+    rgba(200,149,99,0) 53%, var(--caramel) 67%, rgba(227,183,132,.95) 77%, var(--caramel) 87%, rgba(227,183,132,0) 97%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;opacity:.6;transition:opacity .35s var(--ease)}
+/* outer bloom — sits behind the image, so only the part beyond the edge is visible */
+.card::before{content:"";position:absolute;inset:-5px;
+  border-radius:var(--leaf-h) calc(var(--radius) + 5px) var(--leaf-h) calc(var(--radius) + 5px)
+              / var(--leaf-v) calc(var(--radius) + 5px) var(--leaf-v) calc(var(--radius) + 5px);
+  pointer-events:none;z-index:-1;
+  background:conic-gradient(from var(--card-angle),
+    rgba(200,149,99,0) 0%, var(--caramel) 14%, rgba(200,149,99,0) 34%,
+    rgba(200,149,99,0) 54%, var(--caramel-hi) 68%, rgba(227,183,132,0) 86%);
+  filter:blur(13px);opacity:.5;transition:opacity .35s var(--ease)}
+.card:hover::after,.card:focus-within::after{opacity:1}
+.card:hover::before,.card:focus-within::before{opacity:.9}
+@media (prefers-reduced-motion:no-preference){
+  .card:hover::before,.card:hover::after,
+  .card:focus-within::before,.card:focus-within::after{animation:cardGlow var(--glow-speed) linear infinite}
+}
+@keyframes cardGlow{to{--card-angle:360deg}}
+/* extra glow for best-sellers (الأكثر طلباً): brighter ring + bigger outer bloom */
+.card--star{--glow-speed:1.6s}
+.card--star::after{padding:2.5px;opacity:.85;
+  background:conic-gradient(from var(--card-angle),
+    rgba(227,183,132,0) 0deg, var(--caramel-hi) 26deg, #fff3e0 45deg, var(--caramel-hi) 64deg, rgba(227,183,132,0) 92deg,
+    rgba(227,183,132,0) 178deg, var(--caramel-hi) 206deg, #fff3e0 225deg, var(--caramel-hi) 244deg, rgba(227,183,132,0) 272deg,
+    rgba(227,183,132,0) 360deg)}
+.card--star::before{inset:-9px;filter:blur(18px);opacity:.8;
+  border-radius:var(--leaf-h) calc(var(--radius) + 9px) var(--leaf-h) calc(var(--radius) + 9px)
+              / var(--leaf-v) calc(var(--radius) + 9px) var(--leaf-v) calc(var(--radius) + 9px);
+  background:conic-gradient(from var(--card-angle),
+    rgba(227,183,132,0) 0deg, var(--caramel-hi) 40deg, #ffe9c4 56deg, var(--caramel-hi) 72deg, rgba(227,183,132,0) 112deg,
+    rgba(227,183,132,0) 220deg, var(--caramel-hi) 250deg, #ffe9c4 266deg, var(--caramel-hi) 282deg, rgba(227,183,132,0) 322deg,
+    rgba(227,183,132,0) 360deg)}
+.card--star:hover::after,.card--star:focus-within::after{opacity:1}
+.card--star:hover::before,.card--star:focus-within::before{opacity:1}
+/* full-bleed product image */
+.card-img{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;
+  border-radius:inherit;transition:transform .6s var(--ease)}
+.card:hover .card-img{transform:scale(1.07)}
+/* text overlaid on the image with a bottom scrim for legibility */
+/* The two swept corners eat into the card, and the caption sits in the path
+   of the bottom-right one -- so that side and the foot are held further in.
+   Percentage padding resolves against the WIDTH on every side, so the inset
+   keeps its proportion as the card resizes. */
+.card-overlay{position:absolute;inset:0;z-index:1;border-radius:inherit;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:20px max(28px,16%) max(30px,15%) 20px;
+  background:linear-gradient(to top,
+    rgba(10,6,3,.95) 0%, rgba(10,6,3,.72) 22%, rgba(10,6,3,.26) 46%, rgba(10,6,3,0) 70%)}
+.card h3{font-family:var(--font-display);font-weight:700;font-size:1.26rem;margin:0;color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,.55)}
+.card .en{font-family:var(--font-latin);font-size:.84rem;color:var(--caramel-hi);
+  letter-spacing:.02em;margin-top:2px}
+.card .desc{color:rgba(246,236,221,.86);font-size:.86rem;line-height:1.55;margin:9px 0 0;
+  text-shadow:0 1px 6px rgba(0,0,0,.5)}
+/* price: honey gold on smoked glass — the only gold on the page, so it reads
+   as its own thing while staying inside the coffee palette */
+.card .price{align-self:flex-start;margin-top:12px;
+  display:inline-flex;align-items:baseline;gap:5px;padding:7px 15px;border-radius:999px;
+  font-family:var(--font-brand);font-weight:400;font-size:1.05rem;line-height:1.25;
+  color:var(--honey-hi);background:rgba(18,10,5,.60);
+  border:1px solid rgba(240,181,90,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 6px 18px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.09)}
+.card .price .cur{font-family:var(--font-brand);font-size:.7rem;font-weight:400;
+  color:var(--honey);opacity:.9}
+/* small print under the price, e.g. the espresso's whitener add-on */
+.card .note{margin-top:8px;font-family:var(--font-display);font-weight:600;
+  font-size:.76rem;line-height:1.4;color:var(--honey);opacity:.92;
+  text-shadow:0 1px 6px rgba(0,0,0,.55)}
+/* the top-right corner keeps its normal radius (the sweep eats the
+   top-left instead), so the badge sits there as a plain fixed offset */
+.badge-star{position:absolute;top:14px;inset-inline-start:18px;z-index:2;
+  display:inline-flex;align-items:center;gap:5px;font-family:var(--font-display);
+  font-weight:700;font-size:.7rem;color:#2a1509;
+  background:linear-gradient(135deg,var(--caramel-hi),var(--caramel));
+  border:1px solid rgba(255,255,255,.28);
+  padding:5px 11px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.badge-star svg{width:12px;height:12px}
+/* "add popping boba" tab — parked above the card's top edge and dropped into
+   view when the card is reached. The slot clips it while it is parked: cards
+   do not hide their overflow (the glow bloom lives outside them), so without
+   this the hidden tab hangs over the card in the row above. The slot's bottom
+   padding is inside the clip region, leaving room for the tab's shadow. */
+.boba-slot{position:absolute;top:0;inset-inline-start:18px;z-index:2;
+  display:flex;overflow:hidden;padding-bottom:18px;pointer-events:none}
+.badge-boba{display:inline-flex;align-items:baseline;gap:5px;
+  padding:8px 13px 9px;border-radius:0 0 13px 13px;
+  font-family:var(--font-display);font-weight:700;font-size:.76rem;color:#2A1509;
+  background:linear-gradient(180deg,var(--honey-hi),var(--honey));
+  box-shadow:0 5px 12px rgba(0,0,0,.45);white-space:nowrap;
+  transform:translateY(-101%);
+  transition:transform .6s cubic-bezier(.22,1,.36,1) .12s}
+.badge-boba b{font-size:.92rem;font-weight:800}
+.badge-boba i{font-family:var(--font-body);font-style:normal;font-size:.62rem;
+  font-weight:700;opacity:.72}
+.card.is-seen .badge-boba{transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.badge-boba{transform:none;transition:none}}
+
+/* --- the mix deck: five flavours stacked behind one card ---
+   The whole card is the tap target, so it has to look tappable: the counter
+   badge says how many are behind it, and the turn itself is the feedback.
+   No blur on the badge -- it sits over 40 cards' worth of scrolling and a
+   backdrop filter here is paid for on every frame. */
+/* A transition, not an animation: every card carries an inline
+   animation-delay for its entrance, and an inline longhand outranks a
+   stylesheet shorthand -- so an @keyframes flip would inherit that delay and
+   fire late, after the face had already been swapped.
+
+   The turn goes one way and keeps going. The card leaves to -90deg, the face
+   is swapped while it is edge-on, and it is then placed at +90deg and brought
+   back to 0 -- so the new face arrives from the far side. Turning back out of
+   -90deg instead (which is what it did at first) reads as the card stalling
+   half way and changing its mind. */
+.card--deck{cursor:pointer;
+  transition:transform .19s cubic-bezier(.15,.7,.3,1),box-shadow .4s var(--ease)}
+.card--deck.flip-out{transition-timing-function:cubic-bezier(.7,0,.9,.25);
+  transform:perspective(1100px) rotateY(-90deg) scale(.94)}
+.card--deck.flip-in{transform:perspective(1100px) rotateY(90deg) scale(.94)}
+.card--deck.no-anim{transition:none}
+/* The badge has to do the whole job of telling a customer that this card is
+   not like the other 39: it says how many flavours are inside, which one is
+   showing, and -- in words, because an icon alone was not read as an
+   instruction -- that tapping changes it. Honey-filled, because on this page
+   filled honey is what "act on me" looks like. */
+.deck-badge{position:absolute;top:13px;inset-inline-start:13px;z-index:2;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 13px;border-radius:999px;
+  font-family:var(--font-display);font-weight:800;font-size:.78rem;
+  color:#2A1509;letter-spacing:.01em;white-space:nowrap;
+  background:linear-gradient(180deg,var(--honey-hi),var(--honey));
+  border:1px solid rgba(255,255,255,.5);
+  box-shadow:0 8px 22px -8px rgba(0,0,0,.65),0 0 24px -10px rgba(240,181,90,.9),
+             inset 0 1px 0 rgba(255,255,255,.75)}
+.deck-badge svg{width:15px;height:15px;flex:0 0 auto}
+.deck-badge .n{font-weight:800;opacity:.82;font-size:.72rem}
+/* the icon turns once the card is reached -- three turns, then it settles.
+   A hint that never stops moving becomes wallpaper. */
+.card.is-seen .deck-badge svg{animation:deckHint 1.5s var(--ease) 3}
+@keyframes deckHint{
+  0%,55%{transform:rotate(0)} 78%{transform:rotate(-320deg)} 100%{transform:rotate(-360deg)}
+}
+@media(prefers-reduced-motion:reduce){.card.is-seen .deck-badge svg{animation:none}}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer{border-top:1px solid var(--line-soft);margin-top:80px;padding-block:56px 40px;
+  background:linear-gradient(to bottom,transparent,rgba(46,27,16,.35))}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;align-items:start}
+.foot-brand .brand{margin-bottom:14px}
+.foot-brand p{color:var(--muted);font-size:.92rem;max-width:34ch}
+.foot-col h4{font-family:var(--font-brand);font-weight:400;font-size:1.05rem;
+  margin:0 0 14px;color:var(--cream)}
+.foot-col li{list-style:none;color:var(--muted);font-size:.92rem;margin-bottom:11px;
+  display:flex;align-items:flex-start;gap:9px;line-height:1.6}
+.foot-col ul{margin:0;padding:0}
+.foot-col svg{width:17px;height:17px;color:var(--caramel);flex-shrink:0;margin-top:.25em}
+.foot-col a{color:inherit;text-decoration:none;overflow-wrap:anywhere;
+  transition:color .2s}
+.foot-col a:hover,.foot-col a:focus-visible{color:var(--caramel-hi)}
+/* address → Google Maps: underlined so the line reads as tappable */
+.map-link{display:flex;align-items:flex-start;gap:9px;color:var(--latte);
+  text-decoration:underline;text-decoration-color:rgba(200,149,99,.45);
+  text-underline-offset:4px}
+.socials{display:flex;gap:12px;margin-top:6px}
+.socials a{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:var(--espresso-3);border:1px solid var(--line);color:var(--cream);
+  transition:transform .2s,background .2s,color .2s}
+.socials a:hover{transform:translateY(-3px);background:var(--caramel);color:#2a1509}
+/* the ornamental ones must not pretend to be clickable */
+.socials a:not([href]){cursor:default}
+.socials a:not([href]):hover{transform:none;background:var(--espresso-3);color:var(--cream)}
+.socials svg{width:19px;height:19px}
+.copyright{text-align:center;color:var(--muted);font-size:.82rem;margin-top:46px;
+  padding-top:24px;border-top:1px solid var(--line-soft);font-family:var(--font-latin)}
+
+/* ============================================================
+   Built-by credit (OMHA) + the entry toast that points at it
+   ============================================================ */
+.omha{margin-top:44px;padding:20px 22px;border-radius:20px;
+  border:1px solid var(--line-soft);background:rgba(46,27,16,.32);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;scroll-margin-top:92px}
+.omha-logo{width:64px;height:64px;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 0 2px rgba(123,63,242,.5),0 10px 26px rgba(0,0,0,.45)}
+.omha-txt{flex:1;min-width:160px}
+.omha-eyebrow{display:block;font-size:.78rem;color:var(--muted)}
+.omha-name{font-family:var(--font-display);font-weight:700;font-size:1.1rem;
+  color:var(--cream);margin-top:.2em}
+.omha-links{display:flex;gap:10px}
+.omha-links a{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:var(--espresso-3);border:1px solid var(--line);color:var(--cream);
+  transition:transform .2s,background .2s,color .2s,border-color .2s}
+.omha-links a:hover,.omha-links a:focus-visible{transform:translateY(-3px);
+  background:linear-gradient(135deg,#2F6BE8,#7B3FF2);color:#fff;border-color:transparent}
+.omha-links svg{width:18px;height:18px}
+
+/* slides in from the right a moment after the page opens */
+.dev-toast{position:fixed;top:84px;right:16px;z-index:70;
+  display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;
+  border-radius:999px;max-width:min(320px,calc(100vw - 32px));
+  background:linear-gradient(135deg,rgba(19,14,34,.96),rgba(24,13,8,.96));
+  border:1px solid rgba(123,63,242,.45);box-shadow:0 14px 34px rgba(0,0,0,.5);
+  transform:translateX(120%);opacity:0;pointer-events:none;
+  transition:transform .55s var(--ease),opacity .45s var(--ease)}
+.dev-toast.is-in{transform:none;opacity:1;pointer-events:auto}
+.dev-toast-main{display:flex;align-items:center;gap:10px;color:var(--cream);
+  font-family:var(--font-display);font-weight:600;font-size:.85rem;line-height:1.35}
+.dev-toast-main img{width:38px;height:38px;border-radius:50%;flex-shrink:0}
+.dev-toast-main b{color:#A98BFF;font-weight:800}
+.dev-toast-close{width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;background:transparent;border:0;
+  color:var(--muted);font-size:1.15rem;line-height:1;padding:0;
+  transition:color .2s,background .2s}
+.dev-toast-close:hover{color:var(--cream);background:rgba(255,255,255,.08)}
+
+@media(max-width:760px){
+  .foot-grid{grid-template-columns:1fr;gap:32px}
+  :root{--gal-radius:270px;--gal-cardw:216px;--gal-cardh:302px}
+
+  /* Phone tabs: one slim scrollable row instead of a 3-row block that ate
+     half the screen. Padding stays >6px so the tab glow isn't clipped by
+     the horizontal overflow. */
+  .tabs{top:70px;flex-wrap:nowrap;justify-content:flex-start;
+    overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    gap:7px;padding:8px 9px;margin-bottom:24px;border-radius:14px;
+    scroll-padding-inline:9px;
+    background:linear-gradient(to bottom,rgba(24,13,8,.96),rgba(24,13,8,.86));
+    -webkit-mask-image:linear-gradient(to left,transparent 0,#000 16px,
+      #000 calc(100% - 16px),transparent 100%);
+    mask-image:linear-gradient(to left,transparent 0,#000 16px,
+      #000 calc(100% - 16px),transparent 100%)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;white-space:nowrap;scroll-snap-align:center;
+    padding:7px 14px;font-size:.82rem}
+
+  /* Phone hero: centred, tighter rhythm so headline + sub + button + cue
+     all clear the fold */
+  .hero{min-height:78svh;padding-block:56px 30px}
+  .hero-eyebrow{font-size:.86rem;margin-bottom:14px}
+  .hero h1{font-size:clamp(1.9rem,8.2vw,2.6rem);line-height:1.32;margin-bottom:.4em}
+  .hero-sub{font-size:.95rem;line-height:1.75;max-width:34ch;margin-bottom:22px}
+  .hero-cta{margin-bottom:26px}
+  .hero-btn{padding:13px 26px;font-size:.98rem}
+  .scroll-cue{font-size:.8rem;gap:6px}
+  .scroll-cue .mouse{width:21px;height:33px}
+
+  .dev-toast{top:80px;right:10px;padding:7px 9px 7px 7px}
+  .dev-toast-main{font-size:.8rem}
+  .dev-toast-main img{width:34px;height:34px}
+  .omha{padding:18px;gap:14px}
+  .omha-logo{width:56px;height:56px}
+}
+@media(min-width:761px) and (max-width:1024px){
+  :root{--gal-radius:360px;--gal-cardw:240px;--gal-cardh:330px}
+}
+/* Height matters as much as width now that the name row and the heading are
+   both hung off the card: the three of them have to share the screen. A
+   1366x768 laptop leaves ~640px of viewport, and a 380px card there pushes
+   the names up under the nav bar. So a short screen -- a laptop, or any
+   phone turned on its side -- gets a smaller card instead. These come after
+   the width rules on purpose: same specificity, so the later one wins, and
+   a short landscape phone should be sized by its height, not its width. */
+@media(max-height:760px){
+  :root{--gal-cardw:236px;--gal-cardh:322px}
+}
+@media(max-height:660px){
+  :root{--gal-cardw:200px;--gal-cardh:280px}
+}
+
+/* ============================================================
+   Ordering
+   No third hue. Three previous attempts (jade, pomegranate, lotus red)
+   all failed the same way: honey already owns the warm-and-bright end of
+   this palette, so any saturated action colour either fights the brown or
+   competes with the price for the eye.
+
+   So action is expressed as LIGHT rather than colour -- a solid ivory
+   drawn from the cream already in use. It cannot clash, it is the highest
+   contrast available on an espresso page, and it leaves honey as the only
+   real colour on screen, which makes the price stronger, not weaker.
+
+   The rule that follows from that: ivory adds, honey commits and honey
+   means money. Nothing else is ever filled.
+   ============================================================ */
+
+/* --- order button on the card --- */
+.order-btn{position:absolute;bottom:16px;inset-inline-end:16px;z-index:2;
+  padding:10px 17px;border-radius:999px;border:1px solid rgba(255,255,255,.55);
+  display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  font-family:var(--font-display);font-weight:700;font-size:.86rem;
+  color:var(--ink);letter-spacing:.01em;white-space:nowrap;
+  background:linear-gradient(128deg,var(--ivory-hi),var(--ivory) 58%,var(--ivory-lo));
+  box-shadow:0 10px 26px -8px rgba(0,0,0,.62),
+             0 0 28px -12px rgba(246,236,221,.55),
+             inset 0 1px 0 rgba(255,255,255,.95);
+  transition:transform .2s var(--ease),box-shadow .25s,filter .25s}
+.order-btn:hover{transform:translateY(-2px);filter:brightness(1.04);
+  box-shadow:0 16px 34px -8px rgba(0,0,0,.7),
+             0 0 36px -12px rgba(246,236,221,.7),
+             inset 0 1px 0 rgba(255,255,255,.95)}
+.order-btn:active{transform:translateY(0) scale(.97)}
+.order-btn .tick{display:none;width:15px;height:15px;stroke-width:3}
+/* already ordered: the pill empties out into glass so the filled ones
+   are the only bright marks left on the grid */
+.order-btn.in-cart{background:rgba(246,236,221,.13);
+  border-color:rgba(246,236,221,.55);color:var(--foam);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 8px 22px -12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.22)}
+.order-btn.in-cart .tick{display:block}
+.order-btn b{font-weight:800}
+/* sold out. The photo keeps most of its colour -- draining it entirely made
+   the card look broken rather than closed -- and the button stops being one */
+.order-btn.is-off{background:rgba(20,11,6,.72);color:rgba(246,236,221,.72);
+  border-color:rgba(246,236,221,.28);box-shadow:none;cursor:not-allowed}
+.card.is-off{cursor:default}
+.card.is-off .card-img{filter:saturate(.5) brightness(.62)}
+.card.is-off .card-overlay h3,
+.card.is-off .card-overlay .price{opacity:.72}
+
+/* --- floating cart bar --- */
+.cart-bar{position:fixed;z-index:60;inset-inline:0;bottom:0;
+  padding:0 16px calc(16px + env(safe-area-inset-bottom));
+  display:flex;justify-content:center;pointer-events:none;
+  transform:translateY(150%);transition:transform .6s var(--sheet-in);
+  will-change:transform}
+.cart-bar.show{transform:translateY(0)}
+/* Liquid glass, honey-tinted.
+   The glass reads as glass through LIGHT, not through transparency: a lit
+   rim, a specular pool in the upper half, a refracted base and a real
+   backdrop blur. The tint itself stays at ~.86 because below ~.78 the
+   honey goes muddy over the dark page and the dark label drops under 4.5:1
+   contrast -- measured, not guessed. So the colour stays vivid and the
+   glass is built on top of it. */
+.cart-bar button{pointer-events:auto;width:100%;max-width:440px;position:relative;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:15px 22px;border-radius:999px;cursor:pointer;overflow:hidden;
+  border:1px solid rgba(255,255,255,.42);
+  font-family:var(--font-display);font-weight:800;font-size:1.02rem;color:#2A1509;
+  background:linear-gradient(180deg,
+    rgba(255,224,170,.82) 0%, rgba(240,181,90,.9) 46%, rgba(226,158,66,.86) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(190%);
+  backdrop-filter:blur(20px) saturate(190%);
+  box-shadow:
+    0 20px 46px -12px rgba(240,181,90,.55),        /* honey bloom on the page */
+    0 8px 22px rgba(0,0,0,.5),                     /* it floats */
+    inset 0 1px 0 rgba(255,255,255,.9),            /* lit top rim */
+    inset 0 -1px 0 rgba(255,255,255,.22),          /* refracted bottom rim */
+    inset 0 14px 28px -14px rgba(255,255,255,.7),  /* light pooling under the top */
+    inset 0 -18px 26px -20px rgba(120,58,8,.55);   /* liquid settling at the base */
+  transition:transform .18s var(--ease)}
+/* the specular cap: the upper half of a glass pill always catches more light */
+.cart-bar button::before{content:"";position:absolute;z-index:0;pointer-events:none;
+  inset:1px 1px auto 1px;height:54%;
+  border-radius:999px 999px 46% 46% / 999px 999px 26px 26px;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.04))}
+.cart-bar button > *{position:relative;z-index:1}
+/* A slow sheen so the bar feels alive without demanding attention -- but it
+   runs three times and stops. Left on `infinite` it repainted a large
+   honey-tinted, backdrop-blurred surface for as long as the bar was on
+   screen, and the worst frame during a scroll measured 133ms against 50ms
+   with it off. Three passes catch the eye; after that it is only a cost. */
+.cart-bar button::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.5) 50%,transparent 62%);
+  transform:translateX(-120%);animation:sheen 5.5s ease-in-out 3}
+@keyframes sheen{0%,72%{transform:translateX(-120%)}92%,100%{transform:translateX(120%)}}
+.cart-bar button:active{transform:scale(.98)}
+.cart-bar.bump button{animation:cartBump .5s var(--ease)}
+@keyframes cartBump{40%{transform:scale(1.05)}100%{transform:scale(1)}}
+.cart-bar .cb-count{display:inline-flex;align-items:center;gap:8px}
+/* the count reads as a bubble sunk into the liquid */
+.cart-bar .cb-count b{min-width:25px;height:25px;border-radius:50%;
+  display:inline-grid;place-items:center;background:rgba(42,21,9,.2);font-size:.85rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(0,0,0,.12)}
+.cart-bar .cb-total{font-family:var(--font-brand);font-weight:400;font-size:1.07rem}
+
+/* --- sheets --- */
+/* No backdrop blur here. At 74% black the blur underneath is not visible
+   anyway, and it was being computed over the whole screen every frame the
+   scrim faded -- the single biggest cost when a sheet opens. */
+.scrim{position:fixed;inset:0;z-index:70;background:rgba(6,3,2,.78);
+  opacity:0;visibility:hidden;
+  transition:opacity .5s var(--sheet-in),visibility .5s}
+.scrim.open{opacity:1;visibility:visible}
+/* Android Chrome paints a blue rectangle over whatever you touch. It ignores
+   border-radius, so on the round +/- buttons it flashes as a hard square. */
+button,a,[role="button"],input,textarea,select{-webkit-tap-highlight-color:transparent}
+button:focus{outline:none}
+button:focus-visible{outline:2px solid var(--honey-hi);outline-offset:2px}
+
+/* a round button that sits on the photo: back out of the sheet */
+.sheet-back{position:absolute;z-index:5;top:14px;inset-inline-start:14px;
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  cursor:pointer;color:var(--foam);border:1px solid rgba(246,236,221,.42);
+  background:rgba(20,11,6,.62);
+  -webkit-backdrop-filter:blur(14px) saturate(180%);
+  backdrop-filter:blur(14px) saturate(180%);
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .18s var(--ease),background .2s}
+.sheet-back:hover{background:rgba(20,11,6,.8)}
+.sheet-back:active{transform:scale(.92)}
+.sheet-back svg{width:19px;height:19px;stroke-width:2.4}
+/* in the cart there is no photo to sit on, so it rides in the header row */
+#cartSheet .sheet-back{position:static;flex:0 0 auto}
+#cartSheet .sheet-head{align-items:center}
+
+/* Locking the page must not move it. Without a reserved gutter, hiding the
+   body scrollbar widens the viewport and the whole menu jumps sideways the
+   instant a sheet opens -- which reads as a stutter, not as scrolling. */
+html{scrollbar-gutter:stable}
+body.locked{overflow:hidden}
+/* capped and centred: left/right 0 with auto margins. Without the cap the
+   sheet spans a 1900px desktop and the product image becomes a letterbox. */
+.sheet{position:fixed;z-index:71;inset-inline:0;bottom:0;
+  margin-inline:auto;max-width:520px;
+  max-height:92svh;display:flex;flex-direction:column;overflow:hidden;
+  background:linear-gradient(180deg,#2A180E,#1D1009 42%);
+  border-top:1px solid rgba(246,236,221,.16);border-radius:30px 30px 0 0;
+  box-shadow:0 -30px 70px rgba(0,0,0,.68);
+  transform:translateY(100%);transition:transform .6s var(--sheet-in);
+  will-change:transform}
+.sheet.open{transform:translateY(0)}
+.sheet.closing{transition:transform .38s var(--sheet-out)}
+/* The contents rise a beat after the panel does. One flat slab arriving all
+   at once reads as a jump; a 120ms offset reads as the sheet settling and
+   its contents catching up. */
+.sheet-body,.sheet-foot{opacity:0;transform:translateY(16px);
+  transition:opacity .42s ease .12s,transform .5s var(--sheet-in) .12s}
+.sheet.open .sheet-body,.sheet.open .sheet-foot{opacity:1;transform:none}
+.sheet.closing .sheet-body,.sheet.closing .sheet-foot{
+  transition:opacity .2s ease,transform .2s ease}
+/* light from the left, honey from the right — the sheet opens lit */
+.sheet::before{content:"";position:absolute;inset-inline:0;top:0;height:230px;
+  pointer-events:none;z-index:0;
+  background:
+    radial-gradient(120% 100% at 16% 0%, rgba(246,236,221,.14), transparent 64%),
+    radial-gradient(110% 100% at 90% 6%, rgba(240,181,90,.22), transparent 62%)}
+/* Everything in the flow sits above the lit gradient. The back button is
+   excluded by name: it is positioned, and a bare `.sheet > *` outweighs
+   `.sheet-back` on source order alone -- which turned the button back into
+   a flex item, gave it a 30px band of its own above the photo and squashed
+   it out of round. */
+.sheet > *:not(.sheet-back){position:relative;z-index:1}
+.sheet-grip{flex:0 0 auto;padding:12px 0 5px;display:grid;place-items:center;cursor:pointer}
+.sheet-grip i{width:46px;height:4px;border-radius:999px;
+  background:linear-gradient(90deg,var(--ivory),var(--honey-hi))}
+.sheet-head{flex:0 0 auto;display:flex;align-items:baseline;gap:9px;
+  padding:6px 22px 14px}
+.sheet-head h2{margin:0;font-family:var(--font-brand);font-weight:400;
+  font-size:1.42rem;color:var(--cream);letter-spacing:-.01em}
+.sheet-head span{color:var(--muted);font-size:.88rem}
+/* scrollbar hidden the same way .tabs does it -- desktop Chrome reserves a
+   permanent track that cuts a line down the sheet. Wheel, touch, keyboard
+   and trackpad scrolling are untouched; only the track stops being drawn. */
+.sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 22px 22px;
+  scrollbar-width:none}
+.sheet-body::-webkit-scrollbar{display:none}
+.sheet-foot{flex:0 0 auto;padding:15px 22px calc(17px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line-soft);
+  background:linear-gradient(180deg,rgba(20,11,6,.5),rgba(20,11,6,.9))}
+
+/* --- product sheet --- */
+/* The photo is shown whole, never cropped. The menu holds two shapes --
+   24 portraits at 3:4 and 22 squares -- so no single frame can hold both
+   without cutting one of them. Instead the frame takes its height from
+   the photo (width:100% + height:auto = the exact native ratio, so most
+   photos meet all four edges with nothing left over).
+
+   Only a tall photo on a short screen hits the cap. There `contain` keeps
+   it undistorted and a blurred, darkened copy of the same photo fills the
+   gap behind it -- so the fill is always the right colour for that drink,
+   and there is never an empty bar. */
+/* full bleed: the negative inline margin cancels .sheet-body's 22px padding
+   exactly, so the photo runs to the sheet's own edges with no gutter. The
+   sheet's overflow:hidden rounds the top corners for it. */
+.prod-stage{position:relative;overflow:hidden;
+  margin:-2px -22px 0;border-radius:0;border:0;
+  display:grid;place-items:center;background:var(--espresso-3)}
+/* The fill only exists for a photo too tall for the screen, where `contain`
+   leaves bars at its sides. Every other time it is completely hidden behind
+   the photo -- and a 28px blur across the full width was still being
+   computed on every open, for nothing. `.has-bars` is set from JS only when
+   the photo really is letterboxed. */
+.prod-stage.has-bars::before{content:"";position:absolute;inset:-12%;z-index:0;
+  pointer-events:none;background-image:var(--shot);
+  background-size:cover;background-position:center;
+  filter:blur(28px) saturate(1.3) brightness(.5)}
+.prod-stage img{position:relative;z-index:1;display:block;
+  width:100%;height:auto;max-height:min(64svh,660px);object-fit:contain}
+/* the grip lifts off the flow and rides on the photo, so nothing sits
+   above the image inside the sheet either */
+#optSheet .sheet-grip{position:absolute;inset-inline:0;top:0;z-index:4;
+  padding:13px 0 0;pointer-events:none}
+#optSheet .sheet-grip i{pointer-events:auto}
+#optSheet .sheet-grip i{background:rgba(255,255,255,.8);
+  box-shadow:0 1px 7px rgba(0,0,0,.55)}
+
+/* Two badges floating on the photo. Both are glass so they belong to the
+   cart bar's family; the category is honey-tinted because it is information
+   about the drink, availability is clear glass because it is a status. */
+.prod-tags{position:absolute;z-index:3;top:0;inset-inline:0;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:58px 16px 0;pointer-events:none}
+.tag{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  padding:7px 14px;border-radius:999px;
+  font-family:var(--font-display);font-weight:700;font-size:.78rem;
+  -webkit-backdrop-filter:blur(14px) saturate(180%);
+  backdrop-filter:blur(14px) saturate(180%);
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.55)}
+.tag-cat{color:var(--ink);border:1px solid rgba(255,255,255,.42);
+  background:linear-gradient(180deg,rgba(255,224,170,.9),rgba(240,181,90,.86))}
+/* dark glass, not light: a pale badge over a pale photo measured 1.56:1.
+   Tinting downwards holds 6.5:1 against the brightest photo in the menu. */
+.tag-ok{color:var(--foam);border:1px solid rgba(246,236,221,.42);
+  background:rgba(20,11,6,.62)}
+.tag-ok svg{width:13px;height:13px;stroke-width:3;flex:0 0 auto}
+/* sold out: the same dark glass, worn in the palette's only warning colour */
+.tag-off{color:#FFD8C2;border:1px solid rgba(255,150,110,.5);
+  background:rgba(58,18,8,.78)}
+
+/* The rest of the sheet rides up over the photo on rounded corners, so the
+   two read as separate surfaces rather than one strip stacked on another.
+   #1D1009 is where the sheet's own gradient has already levelled off by this
+   depth, so the panel joins it without a seam. */
+.prod-body{position:relative;z-index:2;
+  margin:-30px -22px 0;padding:24px 22px 0;
+  border-radius:30px 30px 0 0;background:#1D1009;
+  box-shadow:0 -16px 34px -14px rgba(0,0,0,.7)}
+
+/* name on the right, price on the left -- the reference layout, mirrored */
+.prod-top{display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;margin-bottom:18px}
+.prod-cat{display:block;font-size:.76rem;color:var(--muted);margin-bottom:3px}
+.prod-top h3{margin:0;font-family:var(--font-display);font-weight:800;
+  font-size:1.6rem;line-height:1.25;color:var(--cream);letter-spacing:-.01em}
+/* tan, not cream — otherwise the English line competes with the name */
+.prod-top .en{font-family:var(--font-latin);font-size:.86rem;color:var(--latte);
+  margin-top:1px}
+.prod-price{flex:0 0 auto;text-align:center;font-family:var(--font-brand);
+  line-height:1.1;padding-top:14px}
+.prod-price b{display:block;font-weight:400;font-size:1.85rem;color:var(--honey-hi);
+  text-shadow:0 2px 18px rgba(240,181,90,.3)}
+.prod-price span{font-size:.76rem;color:var(--muted)}
+.sec-label{margin:0 0 9px;font-family:var(--font-display);font-weight:700;
+  font-size:.9rem;color:var(--cream)}
+
+/* option cards */
+.opts{display:grid;gap:10px;margin-bottom:16px}
+.opts button{position:relative;display:flex;align-items:center;justify-content:space-between;
+  padding:15px 18px;border-radius:18px;cursor:pointer;overflow:hidden;
+  background:rgba(255,255,255,.035);border:1px solid var(--line);
+  font-family:var(--font-display);font-weight:700;font-size:1.02rem;color:var(--cream);
+  transition:all .24s var(--ease)}
+.opts button i{font-family:var(--font-brand);font-style:normal;font-weight:400;color:var(--honey-hi)}
+.opts button:hover{border-color:rgba(246,236,221,.4);background:rgba(246,236,221,.06)}
+.opts button.sel{border-color:rgba(246,236,221,.6);
+  background:linear-gradient(120deg,rgba(246,236,221,.17),rgba(246,236,221,.04));
+  box-shadow:0 8px 24px -14px rgba(246,236,221,.5)}
+.opts button.sel::before{content:"";position:absolute;inset-inline-start:0;top:14%;
+  width:3px;height:72%;border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,var(--ivory),var(--honey-hi))}
+
+.extra-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:16px;padding:14px 17px;border-radius:18px;
+  background:rgba(255,255,255,.03);border:1px dashed var(--line)}
+.extra-row label{font-family:var(--font-display);font-weight:700;color:var(--cream);
+  font-size:.96rem;display:flex;align-items:center;gap:10px;cursor:pointer}
+/* honey, not ivory: ticking this box adds money */
+.extra-row input{width:20px;height:20px;accent-color:var(--honey)}
+.extra-row i{font-style:normal;font-weight:800;color:var(--honey-hi)}
+
+/* quantity */
+.qty{display:inline-flex;align-items:center;gap:4px}
+.qty button{width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(246,236,221,.24);cursor:pointer;
+  background:rgba(246,236,221,.08);color:var(--foam);
+  font-family:var(--font-display);font-size:1.24rem;line-height:1;
+  display:grid;place-items:center;transition:all .18s}
+.qty button:hover{background:rgba(246,236,221,.2);border-color:rgba(246,236,221,.55)}
+.qty button:active{transform:scale(.9)}
+.qty span{min-width:34px;text-align:center;font-family:var(--font-display);
+  font-weight:800;font-size:1.14rem;color:var(--cream)}
+
+/* footer of the product sheet: quantity beside the commit, as in the reference */
+.foot-row{display:flex;align-items:center;gap:12px}
+.foot-row .qty{flex:0 0 auto;padding:4px;border-radius:999px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.cta{flex:1;min-width:0;padding:16px 14px;border:0;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--font-display);font-weight:800;font-size:1.02rem;
+  color:var(--ink);white-space:nowrap;
+  background:linear-gradient(118deg,var(--ivory-hi),var(--ivory) 58%,var(--ivory-lo));
+  box-shadow:0 18px 40px -16px rgba(246,236,221,.5),
+             0 5px 16px rgba(0,0,0,.45),
+             inset 0 1px 0 rgba(255,255,255,.95);
+  transition:transform .18s var(--ease),filter .2s}
+.cta:hover{filter:brightness(1.04)}
+.cta:active{transform:scale(.985)}
+.cta .dot{opacity:.4}
+
+/* --- a line in the cart --- */
+.line{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.line:last-of-type{border-bottom:0}
+.line img{width:62px;height:62px;border-radius:16px;object-fit:cover;flex:0 0 auto;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.8)}
+.line-main{flex:1;min-width:0}
+.line-main h4{margin:0;font-family:var(--font-display);font-weight:700;
+  font-size:1.04rem;color:var(--cream)}
+.line-opt{display:inline-block;margin-top:4px;padding:3px 10px;border-radius:999px;
+  font-size:.72rem;color:var(--latte);background:rgba(255,255,255,.05);
+  border:1px solid var(--line)}
+.line-note{margin-top:5px;font-size:.78rem;color:var(--muted)}
+.line-price{margin-top:6px;font-family:var(--font-brand);font-weight:400;
+  color:var(--honey-hi);font-size:1rem}
+.line-side{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.line .qty button{width:30px;height:30px;font-size:1.08rem}
+.line .qty span{min-width:26px;font-size:1rem}
+
+/* --- form --- */
+.fields{display:grid;gap:12px;margin-top:20px}
+.fields-title{margin:0 0 2px;font-family:var(--font-display);font-weight:800;
+  font-size:1.08rem;color:var(--cream)}
+.field label{display:block;margin-bottom:6px;font-size:.83rem;color:var(--muted)}
+.field label b{color:var(--honey-hi)}
+.field input,.field textarea{width:100%;padding:13px 15px;border-radius:16px;
+  background:rgba(255,255,255,.035);border:1px solid var(--line);
+  color:var(--cream);font-family:var(--font-body);font-size:.96rem;
+  transition:border-color .2s,box-shadow .2s,background .2s}
+.field input:focus,.field textarea:focus{outline:0;
+  border-color:rgba(246,236,221,.6);background:rgba(246,236,221,.06);
+  box-shadow:0 0 0 3px rgba(246,236,221,.15)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(183,155,126,.5)}
+.field textarea{resize:vertical;min-height:70px}
+/* the one place a warm red survives, because here it means "wrong" */
+.field.bad input,.field.bad textarea{border-color:#E0765A;
+  box-shadow:0 0 0 3px rgba(224,118,90,.15)}
+.field .err{display:none;margin-top:6px;font-size:.78rem;color:#F0A084}
+.field.bad .err{display:block}
+
+/* delivery / pickup: a two-way switch, not a dropdown -- there are only ever
+   two answers and both should be readable without a tap */
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick button{padding:13px 10px;border-radius:16px;cursor:pointer;
+  font-family:var(--font-display);font-weight:700;font-size:.9rem;
+  color:var(--latte);background:rgba(255,255,255,.035);
+  border:1px solid var(--line);transition:all .22s var(--ease)}
+.pick button:hover{border-color:rgba(246,236,221,.4);color:var(--foam)}
+.pick button.on{color:var(--ink);border-color:transparent;
+  background:linear-gradient(118deg,var(--ivory-hi),var(--ivory) 58%,var(--ivory-lo));
+  box-shadow:0 10px 24px -12px rgba(246,236,221,.5),
+             inset 0 1px 0 rgba(255,255,255,.95)}
+/* the address question disappears when nobody is driving to it */
+.fields.pickup #f-addr{display:none}
+
+/* --- totals + send --- */
+.totals{display:flex;align-items:baseline;justify-content:space-between;
+  padding:4px 0 5px;font-family:var(--font-display)}
+.totals .t-label{font-weight:700;color:var(--cream);font-size:1.08rem}
+.totals .t-val{font-family:var(--font-brand);font-weight:400;color:var(--honey-hi);font-size:1.42rem}
+.excl{margin:0 0 6px;font-size:.79rem;color:var(--muted)}
+/* honey is kept for this one tap in the whole flow: the order leaving */
+.send{width:100%;padding:16px;border:0;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--font-display);font-weight:800;font-size:1.09rem;color:#2A1509;
+  background:linear-gradient(120deg,var(--honey-hi),var(--honey) 58%,#E9A54C);
+  box-shadow:0 18px 40px -12px rgba(240,181,90,.65),inset 0 1px 0 rgba(255,255,255,.45);
+  transition:transform .18s var(--ease),filter .2s}
+.send:hover{filter:brightness(1.05)}
+.send:active{transform:scale(.985)}
+.send svg{width:21px;height:21px}
+.ghost{width:100%;margin-top:10px;padding:12px;border-radius:999px;cursor:pointer;
+  background:transparent;border:1px solid var(--line);color:var(--latte);
+  font-family:var(--font-display);font-size:.93rem;transition:all .2s}
+.ghost:hover{border-color:rgba(246,236,221,.5);color:var(--foam);
+  background:rgba(246,236,221,.07)}
+
+/* --- empty cart --- */
+.empty{text-align:center;padding:40px 10px 30px}
+.empty .ring{width:74px;height:74px;margin:0 auto 16px;border-radius:50%;
+  display:grid;place-items:center;
+  background:radial-gradient(circle at 32% 28%,rgba(246,236,221,.22),rgba(240,181,90,.16));
+  border:1px solid rgba(246,236,221,.26)}
+.empty .ring svg{width:32px;height:32px;color:var(--honey-hi);stroke-width:1.6}
+.empty p{margin:0 0 18px;color:var(--muted);font-size:.98rem}
+
+/* Short desktop screens (a 768px laptop leaves ~660px of viewport) cannot
+   give a 520px-wide square its 520px of height, so the photo would letterbox.
+   Narrowing the sheet shrinks the square to fit the height budget instead --
+   edge to edge everywhere rather than wide-but-cropped here. */
+@media (min-width:560px) and (max-height:780px){
+  .sheet{max-width:420px}
+}
+
+/* the card's own glow ring turns once as confirmation */
+.card.added::after{animation:cardGlow .9s linear 1}
+
+@media(max-width:420px){
+  .line img{width:54px;height:54px}
+  .cart-bar button{padding:14px 18px;font-size:.97rem}
+  .order-btn{padding:9px 14px;font-size:.81rem;bottom:14px;inset-inline-end:14px}
+  .prod-stage img{max-height:64svh}
+  .prod-top h3{font-size:1.42rem}
+  .prod-price b{font-size:1.62rem}
+  .cta{font-size:.95rem;padding:15px 10px}
+  .foot-row{gap:9px}
+  .foot-row .qty button{width:33px;height:33px}
+  .foot-row .qty span{min-width:26px}
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .hearts{display:none}
+  .sheet{transition:none}
+  .cart-bar{transition:none}
+  .sheet-body,.sheet-foot{opacity:1;transform:none;transition:none}
+}
+
+/* ============================================================
+   مؤقّت — إلى أن تُرفع صور Radio Cafe
+   مسارات الصور في الكود لم تتغيّر إطلاقاً: ضع الصور بنفس الأسماء
+   (assets/menu/… و hero-…) وتظهر وحدها بلا أي تعديل.
+   حتى ذلك الحين تُستبدل الصورة الناقصة بتدرّج لوني بدل أيقونة
+   الصورة المكسورة. للحذف لاحقاً: امسح هذا البلوك وبلوك الـ script
+   الذي يلي وسم إغلاق الستايل مباشرة.
+   ============================================================ */
+img.img-missing{
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgba(200,149,99,.20), transparent 62%),
+    linear-gradient(150deg,#3A2415,#241408 72%);
+  color:transparent;          /* لا يظهر نص alt المكسور */
+}
+</style>
+<script>
+/* مؤقّت مع طبقة img-missing أعلاه — يُحذف معها بعد رفع الصور.
+   الصورة الناقصة تأخذ الصنف، ومصدرها يُستبدل ببكسل شفاف حتى لا
+   يرسم المتصفّح أيقونة الصورة المكسورة فوق التدرّج. */
+(function () {
+  var BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+  addEventListener("error", function (e) {
+    var el = e.target;
+    if (!el || el.tagName !== "IMG" || el.src === BLANK) return;
+    el.classList.add("img-missing");
+    el.src = BLANK;
+  }, true);
+})();
+</script>
+<script>
+/* Runs before the body paints: a visitor who has already seen the intro, or
+   who asked the system for less motion, never catches a flash of it. */
+(function(){
+  var show = true;
+  try{ if(localStorage.getItem("rc-intro") === "1") show = false; }catch(e){}
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) show = false;
+  document.documentElement.className += show ? " intro-on" : " no-intro";
+})();
+</script>
+</head>
+<body>
+
+<!-- ===== Intro: the name rains down, a heart of hearts draws itself ===== -->
+<div class="intro" id="intro" aria-hidden="true"><canvas id="introCv"></canvas></div>
+
+<!-- ===== Rising heartbeats (ambient) — hearts drawn in by JS below ===== -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+  <!-- The hero card's outline. The top-right and bottom-left corners are each
+       split into two lobes that meet at a cleft turned inward -- the top of a
+       heart, set into the corner. border-radius cannot describe that, so the
+       silhouette is a path; objectBoundingBox units keep it proportional. -->
+  <clipPath id="shotClip" clipPathUnits="objectBoundingBox">
+    <path d="M .1 0 L .76 0 A .1 .1 0 0 1 .85 .15 A .1 .1 0 0 1 1 .24 L 1 .9 A .1 .1 0 0 1 .9 1 L .24 1 A .1 .1 0 0 1 .15 .85 A .1 .1 0 0 1 0 .76 L 0 .1 A .1 .1 0 0 1 .1 0 Z" />
+  </clipPath>
+  <linearGradient id="hbGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E3B784" /><stop offset="1" stop-color="#F0B55A" />
+  </linearGradient>
+</defs></svg>
+<div class="hearts" id="hearts" aria-hidden="true"></div>
+
+<!-- ===== Nav ===== -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Radio Cafe">
+      <span class="brand-badge"><img src="logo.webp" alt="" width="256" height="256" decoding="async" /></span>
+      <span class="brand-word"><b>RADIO</b><i>CAFE</i></span>
+    </a>
+    <nav class="nav-links" aria-label="أقسام المنيو">
+      <a href="#featured">الأكثر طلباً</a>
+      <a href="#menu">المنيو</a>
+      <a href="#footer">تواصل معنا</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero" id="top">
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <span class="hero-eyebrow">على موجة الزمن الجميل</span>
+      <h1>قهوةٌ على مهل<br />و<span class="accent">طربٌ</span> لا ينقطع</h1>
+      <p class="hero-sub">في راديو، يبدأ كل فنجان بأغنيةٍ قديمة — أجواءٌ شرقية، أصواتٌ لا تشيخ، ونهارٌ يمشي على مهله.</p>
+      <div class="hero-cta">
+        <a href="#menu" class="hero-btn">تصفّح المنيو</a>
+      </div>
+    </div>
+    <figure class="hero-shot" id="heroShot">
+      <div class="hero-shot-frame">
+        <svg class="hero-shot-outline" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M .1 0 L .76 0 A .1 .1 0 0 1 .85 .15 A .1 .1 0 0 1 1 .24 L 1 .9 A .1 .1 0 0 1 .9 1 L .24 1 A .1 .1 0 0 1 .15 .85 A .1 .1 0 0 1 0 .76 L 0 .1 A .1 .1 0 0 1 .1 0 Z" vector-effect="non-scaling-stroke" />
+        </svg>
+        <img src="hero-card.webp" alt="من داخل راديو كافيه"
+             width="1200" height="1200" decoding="async" fetchpriority="high" />
+        <span class="hero-shot-sheen" aria-hidden="true"></span>
+      </div>
+    </figure>
+  </div>
+  <a href="#featured" class="scroll-cue" aria-label="مرّر للأسفل">
+    <span class="mouse"></span>
+    القائمة في الأسفل
+  </a>
+</section>
+
+<!-- ===== Featured circular gallery ===== -->
+<section class="featured" id="featured">
+  <div class="gal-scroll" id="galScroll">
+    <div class="gal-sticky">
+      <div class="gal-names" id="galNames" aria-hidden="true"></div>
+      <div class="gal-head">
+        <span class="eyebrow">Most Loved</span>
+        <h2>الأكثر طلباً</h2>
+        <p>اسحب برفق… ودع النكهة تختار لحظتك</p>
+      </div>
+      <div class="gal-stage" id="galStage" tabindex="0" role="group"
+           aria-label="معرض الأكثر طلباً — اسحب أفقياً للتدوير">
+        <div class="gal-ring" id="galRing"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Menu ===== -->
+<section class="menu" id="menu">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Full Menu</span>
+      <h2>منيو Radio Cafe</h2>
+      <p>كل فنجان هنا يُحضَّر لحظة تطلبه… فاختر ما يشبه مزاجك اليوم</p>
+    </div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="تصفية حسب الفئة"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer" id="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top">
+          <span class="brand-badge"><img src="logo.webp" alt="" width="256" height="256" decoding="async" /></span>
+          <span class="brand-word"><b>RADIO</b><i>CAFE</i></span>
+        </a>
+        <p>في قلب حماة — قهوةٌ مختصة ومشروباتٌ وحلوياتٌ طازجة، وأغنيةٌ قديمة تُحسن الصحبة.</p>
+        <div class="socials">
+          <a href="https://www.instagram.com/radiocafesyr" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg></a>
+          <!-- No account for these yet, so they are ornament: an <a> with no
+               href is not a link, gets no keyboard focus and cannot be
+               followed -- the row keeps its shape without promising a page
+               that does not exist. -->
+          <a aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://wa.me/963983031082" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.5 9c0 3 2.5 5.5 5.5 5.5"/></svg></a>
+          <a aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></a>
+          <a aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></a>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h4>تواصل معنا</h4>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>سوريا — حماة — شارع ابن الرشد</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:+963983031082" dir="ltr">0983 031 082</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>ساعات العمل</h4>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>كل أيام الأسبوع بلا عطلة</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18"/><path d="M5 11V8a7 7 0 0 1 14 0v3"/><path d="M4 11h16v2a8 8 0 0 1-16 0z"/><path d="M7 21h10"/></svg>من 7:30 صباحاً حتى 2 بعد منتصف الليل</li>
+        </ul>
+      </div>
+    </div>
+    <!-- who built it -->
+    <section class="omha" id="omha" aria-labelledby="omhaName">
+      <img class="omha-logo" src="logo/omha-256.webp" alt="OMHA" width="256" height="256" loading="lazy" decoding="async" />
+      <div class="omha-txt">
+        <span class="omha-eyebrow">تنفيذ وتطوير الموقع</span>
+        <div class="omha-name" id="omhaName">شركة OMHA للبرمجيات</div>
+      </div>
+      <div class="omha-links">
+        <a href="https://wa.me/963932797314" target="_blank" rel="noopener" aria-label="واتساب OMHA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.5 9c0 3 2.5 5.5 5.5 5.5"/></svg></a>
+        <a href="https://www.instagram.com/omha.io" target="_blank" rel="noopener" aria-label="إنستغرام OMHA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg></a>
+      </div>
+    </section>
+    <div class="copyright">© <span id="year"></span> Radio Cafe — على موجة الزمن الجميل · جميع الحقوق محفوظة</div>
+  </div>
+</footer>
+
+<!-- ===== Built-by toast — slides in on arrival, jumps to the credit ===== -->
+<aside class="dev-toast" id="devToast" aria-label="مطوّر الموقع">
+  <a class="dev-toast-main" href="#omha">
+    <img src="logo/omha-256.webp" alt="" width="256" height="256" decoding="async" />
+    <span>تنفيذ شركة <b>OMHA</b></span>
+  </a>
+  <button class="dev-toast-close" type="button" aria-label="إغلاق الإشعار">&times;</button>
+</aside>
+
+<!-- ===== Ordering ===== -->
+<div class="cart-bar" id="cartBar" hidden>
+  <button type="button" id="cartOpen">
+    <span class="cb-count"><b id="cbN">0</b> عرض الطلب</span>
+    <span class="cb-total"><span id="cbT">0</span> ل.س</span>
+  </button>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+
+<!-- cart -->
+<section class="sheet" id="cartSheet" role="dialog" aria-modal="true" aria-labelledby="cartTitle" hidden>
+  <div class="sheet-grip"><i></i></div>
+  <div class="sheet-head">
+    <button class="sheet-back" type="button" data-close aria-label="رجوع إلى المنيو"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <h2 id="cartTitle">طلبك</h2><span id="cartCount"></span>
+  </div>
+  <div class="sheet-body" id="cartBody"></div>
+  <div class="sheet-foot" id="cartFoot" hidden>
+    <div class="totals">
+      <span class="t-label">المجموع</span>
+      <span class="t-val"><span id="sumT">0</span> ل.س</span>
+    </div>
+    <p class="excl">لا يشمل أجرة التوصيل — يحدّدها المحل حسب منطقتك.</p>
+    <button class="send" type="button" id="sendBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg>
+      إرسال الطلب عبر واتساب
+    </button>
+    <button class="ghost" type="button" id="copyBtn">نسخ الطلب كنص</button>
+  </div>
+</section>
+
+<!-- product sheet: options, quantity and note all in one place -->
+<section class="sheet" id="optSheet" role="dialog" aria-modal="true" aria-label="تفاصيل الصنف" hidden>
+  <div class="sheet-grip"><i></i></div>
+  <button class="sheet-back" type="button" data-close aria-label="رجوع إلى المنيو"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+  <div class="sheet-body" id="optBody"></div>
+  <div class="sheet-foot foot-row">
+    <span class="qty" id="ctaQty">
+      <button type="button" data-d="1" aria-label="زيادة الكمية">+</button>
+      <span id="ctaQtyN">1</span>
+      <button type="button" data-d="-1" aria-label="إنقاص الكمية">−</button>
+    </span>
+    <button class="cta" type="button" id="ctaAdd">
+      <span>أضف إلى الطلب</span><span class="dot">·</span><span id="ctaPrice"></span>
+    </button>
+  </div>
+</section>
+
+<!-- the menu itself: prices, availability, options. Written by /admin -->
+<script src="menu.js"></script>
+<script>
+/* ============================================================
+   Menu data  (image files live in assets/menu/)
+   ============================================================ */
+/* Sections and names follow the café's printed menu.
+   Prices are Syrian pounds; "80 / 120" is small / large as printed. */
+const CATS = [
+  {id:"all",    ar:"الكل",           en:"All"},
+  {id:"mojito", ar:"موهيتو",         en:"Mojito"},
+  {id:"shake",  ar:"ميلك شيك",       en:"Milkshake"},
+  {id:"sweets", ar:"حلويات",         en:"Desserts"},
+  {id:"hot",    ar:"مشروبات ساخنة",  en:"Hot Drinks"},
+  {id:"cold",   ar:"قهوة باردة",     en:"Iced Coffee"},
+  {id:"juice",  ar:"عصائر فريش",     en:"Fresh Juice"},
+  {id:"panpop", ar:"PanPop",         en:""},   /* لا سطر إنكليزي: الاسم نفسه لاتيني */
+];
+/* The products themselves live in menu.js, which the control panel writes.
+   Keeping them out of here means a price change is a one-line diff in a data
+   file rather than an edit inside the page's source. It is a plain script,
+   not a fetch: the array is needed before the first paint of the grid, and a
+   round trip in front of that would undo the load work. */
+const IMG = f => "assets/menu/" + f.replace(/\.(jpe?g|png)$/i, ".webp");
+// Arabic present -> read right to left; otherwise left to right. Used to pin
+// the direction of names and prices so bidi cannot reorder them.
+const dirOf = s => /[؀-ۿݐ-ݿ]/.test(s) ? "rtl" : "ltr";
+const catAr = id => (CATS.find(c=>c.id===id)||{}).ar || "";
+const catEn = id => (CATS.find(c=>c.id===id)||{}).en || "";
+const STAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 6.6L22 9.2l-5.2 4.6L18.4 22 12 18.1 5.6 22l1.6-8.2L2 9.2l7.4-.6z"/></svg>';
+
+/* ---------- Render menu grid ---------- */
+const grid = document.getElementById("grid");
+/* A deck is a set of products that share one card -- the five mixes. Only the
+   first of each deck is drawn; the rest are reached by tapping it. */
+const deckOf = id => P.filter(p => p.deck === id);
+const DECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.2-6.9"/><path d="M21 3v5h-5"/></svg>';
+
+function renderGrid(filter){
+  grid.innerHTML = "";
+  const seenDeck = new Set();
+  const shown = P.filter(p => (filter==="all" || p.cat===filter) &&
+    (!p.deck || (!seenDeck.has(p.deck) && seenDeck.add(p.deck))));
+  // group headers only when showing all
+  let lastCat = null;
+  shown.forEach((p,i) => {
+    if(filter==="all" && p.cat!==lastCat){
+      lastCat = p.cat;
+      const h = document.createElement("div");
+      h.className = "cat-title";
+      h.innerHTML = catAr(p.cat) + " <small>"+catEn(p.cat)+"</small>";
+      grid.appendChild(h);
+    }
+    const card = document.createElement("article");
+    card.className = "card" + (p.star ? " card--star" : "") + (p.deck ? " card--deck" : "")
+      + (p.soldout ? " is-off" : "");
+    card.style.animationDelay = (i%12*30)+"ms";
+    if(p.deck){
+      // the tap target is the whole card, so it announces itself as one
+      card.dataset.deck = p.deck;
+      card.dataset.di = 0;
+      card.tabIndex = 0;
+      card.setAttribute("role","button");
+      card.setAttribute("aria-label","اضغط لتبديل نكهة الميكس");
+    }
+    card.innerHTML =
+      '<img class="card-img" src="'+IMG(p.img)+'" alt="'+p.ar+'" loading="lazy" decoding="async" />'+
+      // bdi, or bidi reads "1/5" as a right-to-left run and prints it "5/1"
+      (p.deck?'<span class="deck-badge">'+DECK_ICON+deckOf(p.deck).length+' نكهات — اضغط'+
+        '<bdi class="n" dir="ltr"><b>1</b>/'+deckOf(p.deck).length+'</bdi></span>':'')+
+      (p.star?'<span class="badge-star">'+STAR+' الأكثر طلباً</span>':'')+
+      (p.boba?'<span class="boba-slot"><span class="badge-boba">إضافة بوبا <b>'+p.boba+'</b><i>ل.س</i></span></span>':'')+
+      '<div class="card-overlay">'+
+        // Each field is isolated and given an explicit direction. In an RTL
+        // paragraph "3 in 1" came out "in 13", and "80 / 100" rendered as
+        // "100 / 80" -- digits are not strongly directional, so bidi ordered
+        // them right to left. dir="auto" is no help on an all-digit string
+        // for the same reason, hence dirOf rather than auto.
+        '<h3><bdi dir="'+dirOf(p.ar)+'">'+p.ar+'</bdi></h3>'+
+        '<div class="en"><bdi dir="ltr">'+p.en+'</bdi></div>'+
+        '<p class="desc">'+p.d+'</p>'+
+        (p.price ? '<div class="price"><bdi dir="'+dirOf(p.price)+'">'+p.price+'</bdi>'+
+                   '<span class="cur">ل.س</span></div>' : '')+
+        (p.note ? '<div class="note">'+p.note+'</div>' : '')+
+      '</div>'+
+      (ORDER ? orderBtnHTML(p) : '');
+    card.dataset.id = p.img;
+    grid.appendChild(card);
+    if(p.boba) watchForBoba(card);
+    if(p.deck) watchForBoba(card);        // same "card reached" flag as boba
+  });
+  attachTilt();
+  if(ORDER) syncCards();
+}
+
+/* ---------- the mix deck: five flavours, one card ----------
+   Every flavour is a full product, so flipping only has to repaint the card
+   and repoint the order button at the flavour now showing. Everything
+   downstream -- the sheet, the basket, the WhatsApp order -- then names the
+   right drink without knowing decks exist at all. */
+/* Only ever one photo ahead. Fetching all five up front cost 383KB before
+   the customer had even seen the card -- more than a third of the whole
+   first load -- to pay for a tap that most visitors never make. One ahead
+   is enough for the flip never to flash, and it costs nothing until the
+   card is actually on screen. */
+const deckCache = [];
+function preloadNext(card){
+  const list = deckOf(card.dataset.deck);
+  const nxt = list[(+card.dataset.di + 1) % list.length];
+  if(!nxt || deckCache.includes(nxt.img)) return;
+  deckCache.push(nxt.img);
+  const im = new Image(); im.src = IMG(nxt.img);
+}
+function paintDeck(card, p, i, total){
+  const img = card.querySelector(".card-img");
+  img.src = IMG(p.img); img.alt = p.ar;
+  card.querySelector(".card-overlay h3").innerHTML =
+    '<bdi dir="'+dirOf(p.ar)+'">'+p.ar+'</bdi>';
+  card.querySelector(".card-overlay .en").innerHTML = '<bdi dir="ltr">'+p.en+'</bdi>';
+  card.querySelector(".card-overlay .desc").textContent = p.d;
+  const badge = card.querySelector(".deck-badge b");
+  if(badge) badge.textContent = i+1;
+  // the button is rebuilt rather than relabelled: one flavour can be sold out
+  // while the next is not, and that changes the button, not just its text
+  const btn = card.querySelector(".order-btn");
+  if(btn) btn.outerHTML = orderBtnHTML(p);
+  card.classList.toggle("is-off", !!p.soldout);
+  card.dataset.id = p.img;
+  card.dataset.di = i;
+  if(ORDER) syncCards();
+}
+function flipDeck(card){
+  if(card.dataset.busy) return;                     // ignore taps mid-turn
+  const list = deckOf(card.dataset.deck);
+  if(list.length < 2) return;
+  const next = (+card.dataset.di + 1) % list.length;
+  if(reduce){ paintDeck(card, list[next], next, list.length); return; }
+  card.dataset.busy = "1";
+  card.classList.add("flip-out");                   // 0 -> -90deg
+  setTimeout(()=>{
+    paintDeck(card, list[next], next, list.length); // swapped while edge-on
+    // jump to the far side without animating, then release: the card
+    // carries on in the same direction instead of turning back
+    card.classList.add("no-anim","flip-in");
+    card.classList.remove("flip-out");
+    void card.offsetWidth;                          // commit the jump
+    card.classList.remove("no-anim","flip-in");     // +90deg -> 0
+    preloadNext(card);                              // stay one ahead
+    setTimeout(()=>{ delete card.dataset.busy; }, 200);
+  }, 190);
+}
+grid.addEventListener("click", e=>{
+  if(e.target.closest(".order-btn")) return;        // ordering is not flipping
+  const card = e.target.closest(".card[data-deck]");
+  if(card) flipDeck(card);
+});
+grid.addEventListener("keydown", e=>{
+  if(e.key !== "Enter" && e.key !== " ") return;
+  const card = e.target.closest(".card[data-deck]");
+  if(!card || e.target.closest(".order-btn")) return;
+  e.preventDefault(); flipDeck(card);
+});
+
+
+/* Drop the "add popping boba" tab once its card is actually reached.
+   No observer support (or reduced motion) means the CSS already shows it. */
+const bobaWatcher = ("IntersectionObserver" in window) ? new IntersectionObserver((entries,obs)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add("is-seen");
+      if(e.target.dataset.deck) preloadNext(e.target);   // one flavour ahead
+      obs.unobserve(e.target);
+    }
+  });
+}, {threshold:.35}) : null;
+function watchForBoba(card){
+  if(bobaWatcher && !reduce) bobaWatcher.observe(card);
+  else card.classList.add("is-seen");
+}
+
+/* ---------- Category tabs ---------- */
+const tabsEl = document.getElementById("tabs");
+CATS.forEach((c,i)=>{
+  const b = document.createElement("button");
+  b.className = "tab"; b.textContent = c.ar; b.setAttribute("role","tab");
+  b.setAttribute("aria-selected", i===0 ? "true":"false");
+  b.addEventListener("click", ()=>{
+    tabsEl.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected","false"));
+    b.setAttribute("aria-selected","true");
+    renderGrid(c.id);
+    // on phones the tabs are one scrollable row — keep the active one visible
+    if(tabsEl.scrollWidth > tabsEl.clientWidth + 4){
+      b.scrollIntoView({ block:"nearest", inline:"center",
+                         behavior: reduce ? "auto" : "smooth" });
+    }
+    // jump back to the start of the items (just under the sticky nav + tabs)
+    const gridTop = grid.getBoundingClientRect().top + window.scrollY;
+    const y = Math.max(0, gridTop - 70 - tabsEl.offsetHeight - 16);
+    window.scrollTo({ top:y, behavior: reduce ? "auto" : "smooth" });
+  });
+  tabsEl.appendChild(b);
+});
+
+/* ---------- 3D pointer tilt (enhances the hover lift) ---------- */
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function attachTilt(){
+  if(reduce) return;
+  if(window.matchMedia("(hover: none)").matches) return; // skip on touch
+  // the deck card is excluded: its flip owns the transform, and a tilt left
+  // on the element makes the card snap back into the cursor's angle after it
+  grid.querySelectorAll(".card:not([data-deck])").forEach(card=>{
+    card.addEventListener("pointermove", e=>{
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left)/r.width - .5;
+      const py = (e.clientY - r.top)/r.height - .5;
+      card.style.transform =
+        "perspective(900px) rotateX("+(-py*8)+"deg) rotateY("+(px*10)+"deg) translateY(-12px) scale(1.03)";
+    });
+    card.addEventListener("pointerleave", ()=>{ card.style.transform=""; });
+  });
+}
+
+/* ---------- Featured circular gallery ---------- */
+const FEATURED = P.filter(p=>p.star).slice(0,10);
+const ring = document.getElementById("galRing");
+const names = document.getElementById("galNames");
+const N = FEATURED.length;
+const anglePer = 360 / N;
+FEATURED.forEach((p,i)=>{
+  const el = document.createElement("div");
+  el.className = "gal-item";
+  el.dataset.i = i;
+  /* held back behind data-src on purpose. loading="lazy" does not defer these:
+     the ring sits just under the hero, inside the browser's eager window, so
+     all ten photos -- 570KB -- were downloaded before the first screen had
+     finished painting. They are fetched when the section is approached. */
+  el.innerHTML = '<img data-src="'+IMG(p.img)+'" alt="'+p.ar+'" decoding="async" />';
+  ring.appendChild(el);
+  /* the name no longer sits on the photo; it takes its place in the ribbon
+     overhead, on the same travel as the card it belongs to */
+  const nm = document.createElement("span");
+  nm.className = "gal-name";
+  nm.innerHTML = '<span class="gal-pill"><bdi dir="'+dirOf(p.ar)+'">'+p.ar+'</bdi></span>';
+  names.appendChild(nm);
+});
+const nameEls = names.querySelectorAll(".gal-name");
+/* The photos start once the gallery is within a screen's reach, and fade in
+   as each one lands so the ring never snaps. */
+(function loadRingWhenNear(){
+  const fetchAll = () => ring.querySelectorAll("img[data-src]").forEach(im=>{
+    im.addEventListener("load", ()=>im.classList.add("is-in"), {once:true});
+    im.src = im.dataset.src; im.removeAttribute("data-src");
+  });
+  if(!("IntersectionObserver" in window)){ fetchAll(); return; }
+  /* The ring itself is watched, not its stage: the stage is a full screen
+     tall and its top edge already pokes above the fold at rest, so watching
+     it fires before the customer has scrolled at all. The ring is where the
+     cards actually are, and 100px ahead of it is enough to be loading by the
+     time they come up. */
+  const io = new IntersectionObserver((es,obs)=>{
+    if(es.some(e=>e.isIntersecting)){ fetchAll(); obs.disconnect(); }
+  }, {rootMargin:"100px 0px"});
+  io.observe(ring);
+})();
+/* The signatures no longer stand on a turntable seen edge on. They ride the
+   rim of an invisible circle whose centre sits far below the section, so the
+   section reads as a table: the card at the crest faces the reader, its
+   neighbours slide down and away to either side, and the line drifts from the
+   left to the right. ARC_STEP is the slice of that circle between two cards;
+   the radius follows from it, so the spacing at the crest stays about one card
+   wide whatever the screen is. */
+const D2R = Math.PI / 180;
+const ARC_STEP = 16;                        // degrees of arc between two cards
+const ARC_TILT = .85;                       // how far a card leans with the curve
+const ARC_SHRINK = .12;                     // how much smaller each step out is
+const ARC_VIS  = Math.min(3.4, N/2 - .2);   // cards each side still on the table
+let ARC_R = 900, NAME_GAP = 220, NAME_FADE = .34, lastStageW = 0;
+function measureArc(){
+  const cs = getComputedStyle(document.documentElement);
+  const cardW  = parseInt(cs.getPropertyValue("--gal-cardw")) || 280;
+  const cardH  = parseInt(cs.getPropertyValue("--gal-cardh")) || 380;
+  const stageW = (ring.parentElement && ring.parentElement.clientWidth) || window.innerWidth || 0;
+  /* The gap at the crest, where the arc is flattest.
+     A leaning card is wider than its own width -- half of its ROTATED box is
+     what has to clear the one at the crest -- so the minimum spacing is worked
+     out from that rather than guessed as a share of the screen. Sharing the
+     stage was what welded the cards together on a phone: at 360px the share
+     came out narrower than the card itself. Below that floor the neighbour
+     simply rides further off the edge, which is what a small screen should do.
+     While the document is still parsing the stage can measure zero -- and a
+     zero gap would collapse the arc into a single stack -- so until a real
+     width turns up the card's own width stands in. */
+  const lean   = ARC_STEP * ARC_TILT * D2R;
+  const nbHalf = (cardW * Math.cos(lean) + cardH * Math.sin(lean)) * (1 - ARC_SHRINK) / 2;
+  const clear  = cardW / 2 + nbHalf + 34;        // 34px of air between the two
+  const roomy  = stageW ? Math.min(cardW * 1.24, stageW * .46) : cardW * 1.24;
+  const crestGap = Math.max(clear, roomy);
+  ARC_R = crestGap / Math.sin(ARC_STEP * D2R);
+  /* the ribbon is tighter than the cards it labels, so a name is still legible
+     beside its neighbours instead of being flung off the edge with the card */
+  NAME_GAP = Math.max(190, Math.min(260, stageW * .2));
+  /* A phone has no room for a row of names: an Arabic name can be as wide as
+     the gap itself, so on a narrow screen the neighbours fade out almost at
+     once and the names simply hand over to one another. */
+  NAME_FADE = stageW && stageW < 620 ? .95 : .34;
+  lastStageW = stageW;
+}
+measureArc();
+window.addEventListener("resize", measureArc);
+/* ...and measure again the moment the stage actually has a size, which is
+   usually after this script has run */
+if("ResizeObserver" in window) new ResizeObserver(measureArc).observe(ring.parentElement);
+else window.addEventListener("load", measureArc);
+
+/* The ring is turned by a HORIZONTAL gesture (finger swipe, trackpad, mouse
+   drag, arrow keys) instead of by the page scroll. Once it has been turned a
+   full circle — every signature seen — the reader is handed back down to the
+   menu and normal vertical scrolling. */
+const galScroll = document.getElementById("galScroll");
+const stage = document.getElementById("galStage");
+/* travel along the arc is counted in cards now, not in degrees of a turntable */
+let autoOffset = 0, dragOffset = 0, lastInputT = 0;
+let velocity = 0;            // cards per frame, for the flick glide
+let spun = 0, handedOff = false;
+const AUTO_STEP = 0.22 / anglePer;   // a slow idle drift, in cards
+const MAX_V     = 1.6  / anglePer;
+const MIN_V     = 0.05 / anglePer;
+
+// one card per ~200px of drag — slow enough to actually read each item
+function cardsPerPx(){
+  return 1 / Math.min(260, Math.max(150, window.innerWidth * .52));
+}
+function turn(cards){
+  if(!cards) return;
+  dragOffset += cards;
+  spun += Math.abs(cards);
+  lastInputT = performance.now();
+  if(!handedOff && N && spun >= N) handOff();
+}
+function handOff(){
+  handedOff = true;
+  const menu = document.getElementById("menu");
+  const r = galScroll.getBoundingClientRect();
+  // only take over if the gallery is actually the screen the reader is on
+  if(!menu || r.top > window.innerHeight*.5 || r.bottom < window.innerHeight*.5) return;
+  const y = menu.getBoundingClientRect().top + window.scrollY - 70;
+  window.scrollTo({ top:y, behavior: reduce ? "auto" : "smooth" });
+}
+// let the section work again the next time it is visited
+let galVisible = true, galRunning = false;
+if("IntersectionObserver" in window){
+  new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      galVisible = e.isIntersecting;
+      if(galVisible) startGal();          // resume the ring only when on screen
+      else { spun = 0; handedOff = false; }
+    });
+  },{threshold:0}).observe(galScroll);
+}
+
+let dragging = false, lastX = 0;
+stage.addEventListener("pointerdown", e=>{
+  if(e.pointerType === "mouse" && e.button !== 0) return;
+  dragging = true; lastX = e.clientX; velocity = 0;
+  stage.classList.add("is-dragging");
+  if(e.pointerType !== "touch"){ try{ stage.setPointerCapture(e.pointerId); }catch(_){} }
+});
+stage.addEventListener("pointermove", e=>{
+  if(!dragging) return;
+  const d = (e.clientX - lastX) * cardsPerPx();
+  lastX = e.clientX;
+  // a fast flick shouldn't fling the ring past several cards
+  velocity = Math.max(-MAX_V, Math.min(MAX_V, d));
+  turn(d);
+});
+function endDrag(e){
+  if(!dragging) return;
+  dragging = false;
+  stage.classList.remove("is-dragging");
+  try{ stage.releasePointerCapture(e.pointerId); }catch(_){}
+}
+stage.addEventListener("pointerup", endDrag);
+stage.addEventListener("pointercancel", endDrag);
+stage.addEventListener("pointerleave", endDrag);
+
+// trackpad side-swipe (and shift+wheel); a plain vertical wheel still scrolls
+stage.addEventListener("wheel", e=>{
+  const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX
+           : (e.shiftKey ? e.deltaY : 0);
+  if(!dx) return;
+  e.preventDefault();
+  velocity = 0;
+  turn(-dx * cardsPerPx());
+}, {passive:false});
+
+stage.addEventListener("keydown", e=>{
+  if(e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  e.preventDefault();
+  velocity = 0;
+  turn(e.key === "ArrowRight" ? 1 : -1);
+});
+
+// the cards are built once, so hold the list instead of re-querying every frame
+const galItems = ring.querySelectorAll(".gal-item");
+/* Everything a card shows -- where along the arc it sits, how far it has
+   tipped over with the curve, how big it is and how present -- comes from one
+   number: how many cards it stands from the crest. */
+function placeCards(offset){
+  galItems.forEach((el,i)=>{
+    let p = (i + offset) % N;              // signed distance from the crest
+    if(p < 0) p += N;
+    if(p > N/2) p -= N;                    // the far side wraps round the back
+    const a  = p * ARC_STEP * D2R;
+    const ad = Math.abs(p);
+    const x  = ARC_R * Math.sin(a);
+    const y  = ARC_R * (1 - Math.cos(a));  // the fall away from the crest
+    const sc = Math.max(.52, 1 - ad * ARC_SHRINK);
+    el.style.transform =
+      "translate3d("+x.toFixed(1)+"px,"+y.toFixed(1)+"px,0)"+
+      " rotate("+(p * ARC_STEP * ARC_TILT).toFixed(2)+"deg)"+
+      " scale("+sc.toFixed(3)+")";
+    el.style.opacity = ad < ARC_VIS ? Math.max(0, 1 - ad * .28).toFixed(3) : "0";
+    el.style.zIndex  = String(100 - Math.round(ad * 10));
+    el.classList.toggle("is-front", ad < .5);
+    const nm = nameEls[i];
+    if(nm){
+      nm.style.transform = "translateX("+(p * NAME_GAP).toFixed(1)+"px)";
+      nm.style.opacity = ad < ARC_VIS ? Math.max(0, 1 - ad * NAME_FADE).toFixed(3) : "0";
+      nm.classList.toggle("is-front", ad < .5);
+    }
+  });
+}
+placeCards(0);
+function frame(){
+  if(!galVisible){ galRunning = false; return; }  // parked while off screen
+  /* Read the width before this frame writes anything -- layout is still clean
+     from the last one, so it is free -- and re-measure if the stage has
+     changed under us. Belt and braces for the hosts that resize a page
+     without ever firing resize or the observer. */
+  const sw = stage.clientWidth;
+  if(sw && sw !== lastStageW) measureArc();
+  if(!dragging && Math.abs(velocity) > MIN_V){   // flick glide
+    turn(velocity);
+    velocity *= .90;
+  }
+  if(!reduce && !dragging && performance.now() - lastInputT > 160){ autoOffset += AUTO_STEP; }
+  placeCards(dragOffset + autoOffset);
+  requestAnimationFrame(frame);
+}
+function startGal(){ if(!galRunning){ galRunning = true; requestAnimationFrame(frame); } }
+startGal();
+
+/* ---------- The hero photo card ----------
+   It leans towards the pointer, the picture inside drifts the other way by a
+   few pixels so the card reads as having depth, and a gleam tracks the cursor.
+   A finger only gets the press, not the lean: a tilt that follows a thumb on
+   a phone reads as a glitch, not as depth. */
+(function heroShot(){
+  const shot = document.getElementById("heroShot");
+  if(!shot || reduce) return;
+  const frame = shot.querySelector(".hero-shot-frame");
+  const img   = shot.querySelector("img");
+  if(!frame || !img) return;
+
+  const MAX = 9;                       // degrees of lean at the very edge
+  let raf = 0, tx = 0, ty = 0;
+
+  function apply(){
+    raf = 0;
+    frame.style.transform =
+      "rotateX(" + (-ty * MAX).toFixed(2) + "deg) rotateY(" + (tx * MAX).toFixed(2) + "deg)";
+    img.style.transform = "scale(1.06) translate(" +
+      (-tx * 9).toFixed(1) + "px," + (-ty * 9).toFixed(1) + "px)";
+  }
+  function move(e){
+    if(e.pointerType === "touch") return;
+    const r = frame.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width  - .5;   // -0.5 .. 0.5
+    ty = (e.clientY - r.top)  / r.height - .5;
+    shot.style.setProperty("--mx", ((tx + .5) * 100).toFixed(1) + "%");
+    shot.style.setProperty("--my", ((ty + .5) * 100).toFixed(1) + "%");
+    shot.classList.add("is-live");
+    if(!raf) raf = requestAnimationFrame(apply);
+  }
+  function rest(){
+    shot.classList.remove("is-live");
+    tx = ty = 0;
+    frame.style.transform = "";
+    img.style.transform = "";
+  }
+  shot.addEventListener("pointermove", move);
+  shot.addEventListener("pointerleave", rest);
+  shot.addEventListener("pointercancel", rest);
+  /* a finger gets a press instead */
+  shot.addEventListener("pointerdown", e=>{
+    if(e.pointerType !== "touch") return;
+    img.style.transform = "scale(1.05)";
+  });
+  shot.addEventListener("pointerup", e=>{
+    if(e.pointerType !== "touch") return;
+    img.style.transform = "";
+  });
+})();
+
+/* ---------- Intro ----------
+   The site's name falls in columns, and out of the falling a heart assembles
+   itself from a few hundred small hearts. It shows once per visitor, hands
+   over on its own after a few seconds, and a tap cuts it short. */
+(function intro(){
+  const root = document.documentElement;
+  if(!root.classList.contains("intro-on")) return;
+  const wrap = document.getElementById("intro");
+  const cv   = wrap && wrap.querySelector("canvas");
+  if(!cv){ root.classList.remove("intro-on"); return; }
+  const ctx = cv.getContext("2d");
+
+  /* ---- the words. Change these two lines and nothing else. ---- */
+  const RAIN  = "ILOVEYOU";        // the letters that fall, read downwards
+  const TITLE = "Radio Cafe";      // stands in only if the logo cannot load
+
+  /* the badge that sits inside the heart */
+  const logo = new Image();
+  let logoOk = false;
+  logo.onload = () => { logoOk = true; };
+  logo.src = "logo.webp";
+
+  /* columns start above the screen, so the running index goes negative --
+     JS % keeps the sign, and RAIN[-3] would be drawn as the word "undefined" */
+  const pick = k => RAIN[((k % RAIN.length) + RAIN.length) % RAIN.length];
+
+  const HOLD = 7100;               // ms on screen before it starts leaving
+                                   // (+ the .9s fade out = 8s in all)
+  const DRAW = 2000;               // ms the heart takes to assemble
+  let TRAIL = 22;                  // characters in a stream -- set from the height
+
+  const BG = "#180D08", CARAMEL = "#C89563", HI = "#E3B784",
+        HONEY = "#F0B55A", CREAM = "#F6ECDD";
+
+  let W = 0, H = 0, dpr = 1, COL = 18;
+  /* Paced off the screen height, not a fixed pixel count, so the heads reach
+     the bottom edge as the intro ends -- on a short screen and a tall one
+     alike -- which is the moment the site is handed over. */
+  const speed = () => (H * 1.18 / 235) * (.9 + Math.random()*.25);
+  let cols = [], hearts = [], scale = 1, raf = 0, done = false;
+  const t0 = performance.now();
+
+  /* the heart curve everyone knows -- y is negated because canvas y grows down */
+  function curve(t){
+    return { x: 16*Math.pow(Math.sin(t),3),
+             y: -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)) };
+  }
+  /* one small heart, as a path rather than a glyph, so its colour is ours */
+  function heartPath(x,y,s){
+    const w = s, h = s;
+    ctx.beginPath();
+    ctx.moveTo(x, y + h*.30);
+    ctx.bezierCurveTo(x, y - h*.10, x - w*.5, y - h*.10, x - w*.5, y + h*.15);
+    ctx.bezierCurveTo(x - w*.5, y + h*.45, x, y + h*.62, x, y + h*.95);
+    ctx.bezierCurveTo(x, y + h*.62, x + w*.5, y + h*.45, x + w*.5, y + h*.15);
+    ctx.bezierCurveTo(x + w*.5, y - h*.10, x, y - h*.10, x, y + h*.30);
+    ctx.closePath();
+  }
+
+  function build(){
+    /* the curve spans 32 units across and, once centred, about 26 down */
+    scale = Math.min(W * .80 / 32, H * .62 / 26);
+    hearts.length = 0;
+    /* Walk the outline by ARC LENGTH, not by the parameter t. Stepping t
+       evenly bunches the points where the curve slows and thins them where it
+       races: the bottom tip came out a solid blob and the shoulders came out
+       bare. Measuring the curve first and then stepping a constant DISTANCE
+       along it spaces the little hearts evenly the whole way round. */
+    const dense = 1600, xs = [], ys = [], cum = [0];
+    let lo = Infinity, hi = -Infinity;
+    for(let k=0;k<=dense;k++){
+      const q = curve(k / dense * Math.PI * 2);
+      xs.push(q.x); ys.push(q.y);
+      if(q.y < lo) lo = q.y;
+      if(q.y > hi) hi = q.y;
+      if(k) cum.push(cum[k-1] + Math.hypot(q.x - xs[k-1], q.y - ys[k-1]));
+    }
+    /* the curve is not centred on its own origin -- it hangs low */
+    const midY = (lo + hi) / 2, total = cum[dense];
+    const N = 152;
+    let g = 0;
+    for(let k=0;k<N;k++){
+      const target = k / N * total;
+      while(g < dense - 1 && cum[g+1] < target) g++;
+      const span = (cum[g+1] - cum[g]) || 1;
+      const f  = (target - cum[g]) / span;
+      const px = xs[g] + (xs[g+1] - xs[g]) * f;
+      const py = ys[g] + (ys[g+1] - ys[g]) * f - midY;
+      for(let c=0;c<3;c++){
+        hearts.push({
+          x: (px + (Math.random()-.5)*1.15) * scale,
+          y: (py + (Math.random()-.5)*1.15) * scale,
+          s: (5.5 + Math.random()*8.5) * Math.min(1, scale/9),
+          a: .40 + Math.random()*.60,
+          d: Math.random(),
+          c: Math.random() < .3 ? HONEY : (Math.random() < .5 ? HI : CARAMEL)
+        });
+      }
+    }
+    COL = W < 520 ? 19 : 24;
+    /* Long enough to reach from the head back to the top of the screen, so a
+       column is a full curtain rather than a short dash: at 22 characters the
+       streams covered less than half the height and the screen read as empty
+       between them. */
+    TRAIL = Math.ceil(H / COL) + 4;
+    const n = Math.ceil(W / COL) + 1;
+    cols.length = 0;
+    /* Heads scattered down the whole screen, each trailing a full-height
+       stream: the screen is covered from the first frame rather than filling
+       up as a curtain arrives -- started at the top edge, the first two of the
+       three seconds were nearly bare. They still all sweep past the bottom by
+       the time the intro hands over. */
+    for(let i=0;i<n;i++)
+      cols.push({ y: Math.random()*H, v: speed(), i: (Math.random()*RAIN.length)|0 });
+  }
+
+  function size(){
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = wrap.clientWidth; H = wrap.clientHeight;
+    cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = BG; ctx.fillRect(0,0,W,H);
+    build();
+  }
+
+  function frame(now){
+    const t = now - t0;
+    /* Cleared outright now. The old translucent wash faked the tails, which
+       kept them short and let the heart's glow build up frame on frame; each
+       stream draws its own tail instead. */
+    ctx.fillStyle = BG;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.font = (COL - 5) + "px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for(let i=0;i<cols.length;i++){
+      const c = cols[i], x = i*COL + COL/2;
+      for(let j=0;j<TRAIL;j++){
+        const y = c.y - j*COL;
+        if(y < -COL || y > H + COL) continue;
+        ctx.fillStyle = j === 0 ? CREAM : (j < 3 ? HI : CARAMEL);
+        /* the tail thins toward the top but never to nothing, so the screen
+           stays covered once the curtain is down */
+        ctx.globalAlpha = j === 0 ? .95 : Math.max(.14, .62 * (1 - j/TRAIL*.8));
+        ctx.fillText(pick(c.i + ((y/COL)|0)), x, y);
+      }
+      ctx.globalAlpha = 1;
+      c.y += c.v;
+      if(c.y - TRAIL*COL > H){ c.y = -Math.random()*H*.3; c.v = speed(); }
+    }
+
+    /* the heart, restamped every frame so the wash never smears it */
+    const grow = Math.min(1, t / DRAW);
+    ctx.save();
+    ctx.translate(W/2, H/2);
+    ctx.shadowColor = "rgba(227,183,132,.55)"; ctx.shadowBlur = 12;
+    for(let i=0;i<hearts.length;i++){
+      const h = hearts[i];
+      const local = (grow - h.d*.75) / .25;        // each one pops in on its own beat
+      if(local <= 0) continue;
+      const k = Math.min(1, local);
+      ctx.globalAlpha = h.a * k;
+      ctx.fillStyle = h.c;
+      heartPath(h.x, h.y, h.s * (.6 + .4*k));
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+    /* the badge inside the heart, once the heart is nearly closed */
+    const fade = Math.max(0, Math.min(1, (t - DRAW*.72) / 600));
+    if(fade > 0){
+      ctx.save();
+      ctx.globalAlpha = fade;
+      ctx.translate(W/2, H/2 - scale*1.2);
+      const r = scale * 4.9;
+      /* the same badge the page wears: an ivory disc, a faint caramel collar
+         and a soft drop -- it lifts the mark off the falling letters without
+         needing a pool of shade behind it */
+      ctx.beginPath(); ctx.arc(0,0,r*1.10,0,Math.PI*2);
+      ctx.fillStyle = "rgba(200,149,99,.16)"; ctx.fill();
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = r*.55; ctx.shadowOffsetY = r*.12;
+      ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.fillStyle = "#FBF6EE";                       // --foam
+      ctx.fill();
+      ctx.restore();
+      if(logoOk){
+        const d = r * 1.6;                             // the page insets it to 80%
+        ctx.drawImage(logo, -d/2, -d/2, d, d);
+      }else{
+        /* the logo is the point, but a failed load should not leave a hole */
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.font = '400 ' + Math.round(scale*1.5) + 'px "The Originals", system-ui, sans-serif';
+        ctx.fillStyle = "#2A1509";
+        ctx.fillText(TITLE, 0, 0);
+      }
+      ctx.restore();
+    }
+
+    if(t > HOLD) return leave();
+    raf = requestAnimationFrame(safeFrame);
+  }
+  /* frame() draws; it must never be the only thing that can end the intro --
+     see the timer below. A throw in here would strand the overlay, so it
+     bows out instead. */
+  function safeFrame(now){
+    try{ frame(now); }catch(e){ leave(); }
+  }
+
+  function leave(){
+    if(done) return; done = true;
+    cancelAnimationFrame(raf);
+    clearTimeout(timer);
+    wrap.classList.add("is-out");
+    root.classList.remove("intro-on");
+    try{ localStorage.setItem("rc-intro","1"); }catch(e){}
+    setTimeout(()=>{ wrap.remove(); }, 900);
+  }
+
+  /* The guarantee. requestAnimationFrame does not tick at all while the tab is
+     in the background, so a visitor who opens the link and switches away would
+     come back to an overlay that never lifted -- with the page scroll-locked
+     behind it. A wall-clock timer keeps running, so the intro always ends. */
+  const timer = setTimeout(leave, HOLD + 250);
+
+  wrap.addEventListener("pointerdown", leave);
+  window.addEventListener("resize", size);
+  size();
+  raf = requestAnimationFrame(safeFrame);
+})();
+
+/* ---------- Rising heartbeats ----------
+   Same idea as the old pearls: a scatter of shapes climbing the page,
+   each with its own size, lane, drift and pace. Here every shape is a
+   heart that beats once, rests, and beats again the whole way up.
+   The climb and the beat are separate CSS animations (one on the span,
+   one on the svg inside), so a random beat-phase per heart stops them
+   pulsing in lockstep. */
+(function risingHearts(){
+  if(reduce) return;
+  const host = document.getElementById("hearts");
+  if(!host) return;
+  const HEART = '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>';
+  const N = window.innerWidth < 700 ? 9 : 14;
+  for(let i=0;i<N;i++){
+    const s = 16 + Math.random()*24;               // 16-40px
+    const climb = 15 + Math.random()*15;           // 15-30s up the page
+    const el = document.createElement("span");
+    el.className = "hb";
+    el.style.left = (Math.random()*100) + "vw";
+    el.style.width = el.style.height = s + "px";
+    el.style.setProperty("--drift", (Math.random()*100-50) + "px");
+    el.style.animationDuration = climb + "s";
+    el.style.animationDelay = (-Math.random()*climb) + "s";
+    el.innerHTML = HEART;
+    // offset each heart's beat so the field never thumps as one
+    el.firstChild.style.animationDelay = (-Math.random()*2.9) + "s";
+    host.appendChild(el);
+  }
+})();
+
+/* ---------- Built-by toast ---------- */
+(function devToast(){
+  const t = document.getElementById("devToast");
+  if(!t) return;
+  let timer;
+  const hide = ()=>{ t.classList.remove("is-in"); clearTimeout(timer); };
+  setTimeout(()=>{
+    t.classList.add("is-in");
+    timer = setTimeout(hide, 9000);          // gets out of the way on its own
+  }, 1400);
+  t.querySelector(".dev-toast-close").addEventListener("click", hide);
+  t.querySelector(".dev-toast-main").addEventListener("click", hide);
+})();
+
+/* ============================================================
+   Ordering over WhatsApp
+   No server anywhere: the cart lives in this tab, the customer's details
+   live in their own browser, and the order leaves as a prefilled wa.me
+   message. Nothing is stored by us, so there is nothing to protect.
+   ============================================================ */
+
+/* Live for everyone. This was behind ?order=1 while the shop's WhatsApp
+   number was still missing -- an order button that goes nowhere is worse
+   than no order button. The number is set now, so the flag has done its
+   job: a customer cannot be expected to know about a query string. */
+const ORDER = true;
+
+/* 0983031082 in international form: Syria is 963 and the trunk 0 is dropped.
+   wa.me rejects a leading + or 0, so the number is stored exactly as sent. */
+const SHOP_WA = "963983031082";
+const HOURS   = "يومياً من 7:30 صباحاً حتى 2 بعد منتصف الليل";
+
+const CART_TTL = 24*60*60*1000;           // a two-week-old basket is not intent
+/* Arabic costs ~6 characters each once URL-encoded, so a large order can be
+   truncated by the wa.me link -- and a silently shortened order is the worst
+   outcome of all. 3000 clears roughly nineteen items; past that we hand the
+   customer the copy button instead. */
+const WA_MAX = 3000;
+const cart = new Map();                   // key -> {img, oi, ex, q, note}
+const byImg = img => P.find(p=>p.img===img);
+/* A drink can carry more than one yes/no extra -- the espresso is offered with
+   a whitener and with نسلة, independently -- so the answer is a bitmask: bit i
+   is the i-th group's "add". A drink with a single extra still stores 0 or 1,
+   which is exactly what baskets already saved in localStorage hold. */
+const exList = p => p.extras || (p.extra ? [p.extra] : []);
+const keyOf = (img,oi,ex) => img+"|"+oi+"|"+(ex||0);
+const money = n => n.toLocaleString("en-US");
+
+function unitPrice(p,oi,ex){
+  // first number only: stripping every non-digit would turn a "80 / 100"
+  // price that somehow lacked opts into 80100 rather than 80
+  let n = p.opts ? p.opts[oi].p : parseInt((String(p.price).match(/\d+/)||[0])[0],10) || 0;
+  exList(p).forEach((e,i)=>{ if(ex >> i & 1) n += e.p; });
+  return n;
+}
+function labelOf(p,oi,ex){
+  const bits = [];
+  if(p.opts) bits.push(p.opts[oi].ar);
+  exList(p).forEach((e,i)=>{ if(ex >> i & 1) bits.push(e.ar); });
+  return bits.join(" + ");
+}
+const cartCount = () => [...cart.values()].reduce((s,l)=>s+l.q,0);
+/* Arabic counts in five forms, not two: one, a dual, a small plural for 3-10,
+   a singular accusative from 11 up, and back to the plural at 100+. Printing
+   "3 صنف" is wrong the way "3 item" is wrong in English. */
+function countAr(n){
+  if(n === 1) return "صنف واحد";
+  if(n === 2) return "صنفان";
+  if(n % 100 >= 3 && n % 100 <= 10) return n + " أصناف";
+  return n + " صنفاً";
+}
+const cartTotal = () => [...cart.values()]
+  .reduce((s,l)=>s + unitPrice(byImg(l.img),l.oi,l.ex)*l.q, 0);
+
+/* ---- storage: ids and quantities only, never prices, so a basket opened
+        after a price change is re-priced from the live menu ---- */
+function save(){
+  try{
+    localStorage.setItem("bc_cart", JSON.stringify({
+      t: Date.now(),
+      items: [...cart.entries()].map(([k,l])=>({k, q:l.q, n:l.note||""}))
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const raw = JSON.parse(localStorage.getItem("bc_cart")||"null");
+    if(!raw || Date.now()-raw.t > CART_TTL) return;
+    raw.items.forEach(({k,q,n})=>{
+      const [img,oi,ex] = k.split("|");
+      if(!byImg(img)) return;             // item left the menu since
+      cart.set(k, {img, oi:+oi, ex:+ex||0, q, note:n});
+    });
+  }catch(e){}
+}
+
+/* ---- the card button ---- */
+const TICK = '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+function orderBtnHTML(p){
+  /* A sold-out drink still earns its place on the menu -- it is on the board
+     tomorrow. What it loses is the button: a disabled control that says why
+     is honest, where a working button that fails at the end is not. */
+  if(p.soldout)
+    return '<button class="order-btn is-off" type="button" disabled '+
+           'aria-label="'+p.ar+' غير متوفّر حالياً">غير متوفّر</button>';
+  return '<button class="order-btn" type="button" data-add="'+p.img+'" aria-label="اطلب '+p.ar+'">'+
+           TICK + '<span class="lbl">اطلب الآن</span>' +
+         '</button>';
+}
+/* One badge cannot speak for "small" and "large" separately, so the card
+   shows the total across that item's variants. */
+function qtyOfImg(img){
+  let n = 0; cart.forEach(l=>{ if(l.img===img) n += l.q; }); return n;
+}
+function syncCards(){
+  document.querySelectorAll(".order-btn").forEach(btn=>{
+    if(!btn.dataset.add) return;          // sold out: no label to keep in step
+    const n = qtyOfImg(btn.dataset.add);
+    btn.classList.toggle("in-cart", n>0);
+    btn.querySelector(".lbl").innerHTML = n>0 ? 'في طلبك <b>'+n+'</b>' : "اطلب الآن";
+  });
+}
+
+/* ---- cart mutations ---- */
+function addItem(p,oi,ex,qty,note,card){
+  const k = keyOf(p.img,oi,ex);
+  const line = cart.get(k);
+  if(line){ line.q += qty; if(note) line.note = note; }
+  else cart.set(k,{img:p.img, oi, ex:ex||0, q:qty, note:note||""});
+  save(); syncCards(); paintBar();
+  if(card && !reduce){                    // the card's own glow ring, one turn
+    card.classList.remove("added"); void card.offsetWidth; card.classList.add("added");
+  }
+}
+function setQty(k,delta){
+  const line = cart.get(k); if(!line) return;
+  line.q += delta;
+  if(line.q<=0) cart.delete(k);
+  save(); syncCards(); paintBar(); renderCart();
+}
+
+/* ---- the floating bar ---- */
+const bar = document.getElementById("cartBar");
+function paintBar(){
+  const n = cartCount();
+  document.getElementById("cbN").textContent = n;
+  document.getElementById("cbT").textContent = money(cartTotal());
+  if(n>0){
+    bar.hidden = false;
+    requestAnimationFrame(()=>bar.classList.add("show"));
+    bar.classList.remove("bump"); void bar.offsetWidth; bar.classList.add("bump");
+  }else{
+    bar.classList.remove("show");
+    setTimeout(()=>{ if(cartCount()===0) bar.hidden = true; }, 560);
+  }
+}
+
+/* ---- sheets ---- */
+const scrim = document.getElementById("scrim");
+function openSheet(el){
+  scrim.hidden = false; el.hidden = false;
+  el.classList.remove("closing");
+  /* Two frames, not one. The element is display:none until `hidden` clears,
+     and a single rAF can fire before the browser has committed that first
+     style pass -- the class then lands in the same recalc as the initial
+     transform and there is nothing to animate from, so the sheet snaps into
+     place instead of sliding. The second frame guarantees a start value. */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    scrim.classList.add("open"); el.classList.add("open");
+  }));
+  document.body.classList.add("locked");
+}
+/* Hide on transitionend rather than a hard-coded timer, so the two can never
+   drift apart when a duration changes. The timer stays only as a fallback for
+   the case where the transition never fires at all. */
+function hideAfter(el, fallback){
+  const done = e => {
+    if(e && (e.target !== el || e.propertyName !== "transform")) return;
+    el.hidden = true; el.classList.remove("closing");
+    el.removeEventListener("transitionend", done); clearTimeout(t);
+  };
+  el.addEventListener("transitionend", done);
+  const t = setTimeout(done, fallback);
+}
+function closeSheets(){
+  document.querySelectorAll(".sheet.open").forEach(s=>{
+    s.classList.add("closing"); s.classList.remove("open");
+    hideAfter(s, 600);
+  });
+  scrim.classList.remove("open");
+  setTimeout(()=>{ if(!scrim.classList.contains("open")) scrim.hidden = true; }, 520);
+  document.body.classList.remove("locked");
+}
+
+/* ---- product sheet: options, quantity and note in one place ---- */
+const optSheet = document.getElementById("optSheet");
+const optBody  = document.getElementById("optBody");
+const ctaAdd   = document.getElementById("ctaAdd");
+let draft = null;                         // {p, oi, ex, q, note, card}
+
+/* the header price is what one costs; the footer button carries the line total,
+   so the two numbers answer different questions instead of repeating */
+function paintCta(){
+  const unit = unitPrice(draft.p, draft.oi, draft.ex);
+  document.getElementById("prodPrice").textContent = money(unit);
+  document.getElementById("ctaPrice").textContent  = money(unit * draft.q) + " ل.س";
+  document.getElementById("ctaQtyN").textContent   = draft.q;
+  // the size group and the extras groups are painted separately: they are the
+  // same buttons visually but they answer different questions
+  optBody.querySelectorAll(".opts:not(.opts-ex) button").forEach((b,i)=>
+    b.classList.toggle("sel", i===draft.oi));
+  optBody.querySelectorAll(".opts-ex button").forEach(b=>
+    b.classList.toggle("sel",
+      (b.dataset.ex === "1") === !!(draft.ex >> +b.dataset.eg & 1)));
+}
+function openProduct(p,card){
+  draft = {p, oi:0, ex:0, q:1, note:"", card};
+  const cat = (CATS.find(c=>c.id===p.cat)||{}).ar || "";
+  optBody.innerHTML =
+    /* --shot feeds the blurred fill behind the photo, so it is always
+       tinted by that drink rather than by a fixed colour */
+    '<div class="prod-stage" style="--shot:url('+IMG(p.img)+')">'+
+      '<img src="'+IMG(p.img)+'" alt="'+p.ar+'" />'+
+      '<div class="prod-tags">'+
+        '<span class="tag tag-cat">'+cat+'</span>'+
+        // this used to say "متاح" on everything, which made it decoration.
+        // It is read from the menu now, so it is worth reading
+        (p.soldout ? '<span class="tag tag-off">غير متوفّر حالياً</span>'
+                   : '<span class="tag tag-ok">'+TICK+'الصنف متاح</span>')+
+      '</div></div>'+
+    '<div class="prod-body">'+
+    '<div class="prod-top">'+
+      '<div><span class="prod-cat">'+cat+'</span>'+
+        '<h3><bdi dir="'+dirOf(p.ar)+'">'+p.ar+'</bdi></h3>'+
+        '<div class="en"><bdi dir="ltr">'+p.en+'</bdi></div></div>'+
+      '<div class="prod-price"><b id="prodPrice">0</b><span>ل.س</span></div>'+
+    '</div>'+
+    (p.opts ? '<p class="sec-label">اختر '+(exList(p).length?"الحجم":(p.boba?"الإضافة":"الحجم"))+'</p>'+
+      '<div class="opts">'+p.opts.map((o,i)=>
+        '<button type="button" data-oi="'+i+'"><span>'+o.ar+'</span>'+
+        '<i>'+money(o.p)+' ل.س</i></button>').join("")+'</div>' : '')+
+    /* two buttons rather than a tickbox: "بدون" is a real choice a customer
+       makes, and a box left unticked does not read as one. Each extra gets its
+       own titled pair, so answering one says nothing about the others */
+    exList(p).map((e,gi)=>
+      '<p class="sec-label">'+(e.title||"الإضافة")+'</p>'+
+      '<div class="opts opts-ex">'+
+        '<button type="button" data-eg="'+gi+'" data-ex="0"><span>'+(e.off||"بدون")+'</span></button>'+
+        '<button type="button" data-eg="'+gi+'" data-ex="1"><span>'+e.ar+'</span>'+
+        '<i>+ '+money(e.p)+' ل.س</i></button>'+
+      '</div>').join("")+
+    '<p class="sec-label">أضف ملاحظتك على الطلب</p>'+
+    '<div class="field"><textarea id="optNote" rows="2" placeholder="اختياري"></textarea></div>'+
+    '</div>';   // closes .prod-body
+
+  optBody.querySelectorAll(".opts:not(.opts-ex) button").forEach(b=>
+    b.addEventListener("click", ()=>{ draft.oi = +b.dataset.oi; paintCta(); }));
+  optBody.querySelectorAll(".opts-ex button").forEach(b=>
+    b.addEventListener("click", ()=>{
+      const bit = 1 << +b.dataset.eg;
+      draft.ex = b.dataset.ex === "1" ? (draft.ex | bit) : (draft.ex & ~bit);
+      paintCta();
+    }));
+
+  paintCta();
+  /* The blurred fill is switched on only when the photo really is
+     letterboxed -- that is, when the frame is wider than the photo drawn
+     inside it. Measured once per open, after layout. */
+  const stage = optBody.querySelector(".prod-stage");
+  const shot  = stage.querySelector("img");
+  const check = () => {
+    if(!shot.naturalWidth) return;
+    const drawn = Math.min(stage.clientWidth,
+      shot.clientHeight * shot.naturalWidth / shot.naturalHeight);
+    stage.classList.toggle("has-bars", stage.clientWidth - drawn > 2);
+  };
+  shot.complete ? requestAnimationFrame(check)
+                : shot.addEventListener("load", ()=>requestAnimationFrame(check), {once:true});
+  openSheet(optSheet);
+}
+/* the stepper lives in the footer now, so it is bound once rather than per open */
+document.querySelectorAll("#ctaQty button").forEach(b=>
+  b.addEventListener("click", ()=>{
+    if(!draft) return;
+    draft.q = Math.max(1, Math.min(30, draft.q + (+b.dataset.d)));
+    paintCta();
+  }));
+ctaAdd?.addEventListener("click", ()=>{
+  if(!draft) return;
+  const note = (optBody.querySelector("#optNote")||{}).value?.trim() || "";
+  addItem(draft.p, draft.oi, draft.ex, draft.q, note, draft.card);
+  closeSheets();
+});
+
+/* ---- cart sheet ---- */
+const cartSheet = document.getElementById("cartSheet");
+const cartBody  = document.getElementById("cartBody");
+const cartFoot  = document.getElementById("cartFoot");
+const BASKET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+
+function renderCart(){
+  const lines = [...cart.entries()];
+  document.getElementById("cartCount").textContent = lines.length ? "· "+countAr(cartCount()) : "";
+  if(!lines.length){
+    cartFoot.hidden = true;
+    const last = localStorage.getItem("bc_last");
+    cartBody.innerHTML =
+      '<div class="empty"><div class="ring">'+BASKET+'</div>'+
+      '<p>طلبك فارغ — تصفّح المنيو وابدأ</p>'+
+      (last ? '<button class="ghost" type="button" id="againBtn">كرّر طلبي السابق</button>' : '')+
+      '</div>';
+    document.getElementById("againBtn")?.addEventListener("click", repeatLast);
+    return;
+  }
+  cartFoot.hidden = false;
+
+  const pending = localStorage.getItem("bc_pending");
+  cartBody.innerHTML =
+    (pending ? '<div class="extra-row" id="askSent"><label>هل أرسلت طلبك السابق؟</label>'+
+       '<span><button class="ghost" type="button" data-sent="1" style="width:auto;padding:7px 15px;margin:0">نعم</button> '+
+       '<button class="ghost" type="button" data-sent="0" style="width:auto;padding:7px 15px;margin:0">لا</button></span></div>' : '')+
+    lines.map(([k,l])=>{
+      const p = byImg(l.img), lab = labelOf(p,l.oi,l.ex);
+      return '<div class="line" data-k="'+k+'">'+
+        '<img src="'+IMG(p.img)+'" alt="" loading="lazy" />'+
+        '<div class="line-main">'+
+          '<h4><bdi dir="'+dirOf(p.ar)+'">'+p.ar+'</bdi></h4>'+
+          (lab ? '<span class="line-opt">'+lab+'</span>' : '')+
+          (l.note ? '<div class="line-note">↳ '+l.note+'</div>' : '')+
+          '<div class="line-price">'+money(unitPrice(p,l.oi,l.ex)*l.q)+' ل.س</div>'+
+        '</div>'+
+        '<div class="line-side"><span class="qty">'+
+          '<button type="button" data-d="1">+</button><span>'+l.q+'</span>'+
+          '<button type="button" data-d="-1">−</button>'+
+        '</span></div>'+
+      '</div>';
+    }).join("") + formHTML();
+
+  wireCart();
+  document.getElementById("sumT").textContent = money(cartTotal());
+}
+
+function formHTML(){
+  const c = JSON.parse(localStorage.getItem("bc_cust")||"{}");
+  return '<div class="fields">'+
+    '<p class="fields-title">بيانات الطلب</p>'+
+    '<div class="field"><label>طريقة الاستلام <b>*</b></label>'+
+      '<div class="pick" id="cPick">'+
+        '<button type="button" data-pick="delivery" class="on">توصيل إلى المنزل</button>'+
+        '<button type="button" data-pick="pickup">استلام من الكافيه</button>'+
+      '</div></div>'+
+    '<div class="field" id="f-name"><label>الاسم <b>*</b></label>'+
+      '<input id="cName" value="'+(c.name||"")+'" placeholder="اسمك" />'+
+      '<span class="err">اكتب اسمك</span></div>'+
+    '<div class="field" id="f-phone"><label>رقم الهاتف <b>*</b></label>'+
+      '<input id="cPhone" type="tel" inputmode="tel" value="'+(c.phone||"")+'" placeholder="09xxxxxxxx" />'+
+      '<span class="err">رقم غير صحيح — مثال 0932797314</span></div>'+
+    '<div class="field" id="f-addr"><label>العنوان <b>*</b></label>'+
+      '<textarea id="cAddr" rows="3" placeholder="المنطقة، الشارع، البناء، الطابق، أقرب معلم">'+(c.addr||"")+'</textarea>'+
+      '<span class="err">اكتب عنوانك</span></div>'+
+    '<div class="field"><label>ملاحظة على الطلب</label>'+
+      '<textarea id="cNote" rows="2" placeholder="اختياري"></textarea></div>'+
+  '</div>';
+}
+
+function wireCart(){
+  /* pickup hides the address field AND clears its error, so a stale red box
+     from an earlier delivery attempt cannot block a pickup order */
+  const pick = document.getElementById("cPick");
+  pick?.querySelectorAll("[data-pick]").forEach(b=>
+    b.addEventListener("click", ()=>{
+      pick.querySelectorAll("[data-pick]").forEach(x=>x.classList.toggle("on", x===b));
+      const wrap = cartBody.querySelector(".fields");
+      wrap.classList.toggle("pickup", b.dataset.pick === "pickup");
+      if(b.dataset.pick === "pickup") document.getElementById("f-addr")?.classList.remove("bad");
+      document.querySelector(".excl").textContent = b.dataset.pick === "pickup"
+        ? "تستلمه من الكافيه — لا أجرة توصيل."
+        : "لا يشمل أجرة التوصيل — يحدّدها المحل حسب منطقتك.";
+    }));
+
+  cartBody.querySelectorAll(".line").forEach(el=>{
+    const k = el.dataset.k;
+    el.querySelectorAll(".qty button").forEach(b=>
+      b.addEventListener("click", ()=>setQty(k, +b.dataset.d)));
+  });
+  document.getElementById("askSent")?.querySelectorAll("[data-sent]").forEach(b=>
+    b.addEventListener("click", ()=>{
+      localStorage.removeItem("bc_pending");
+      if(b.dataset.sent==="1"){ cart.clear(); save(); syncCards(); paintBar(); }
+      renderCart();
+    }));
+}
+
+/* ---- validation: format only. The customer's real number reaches the shop
+        through WhatsApp regardless, so this is about catching typos. ---- */
+const phoneOK = v => /^(09\d{8}|(\+?963|00963)9\d{8})$/.test(v.replace(/[\s\-()]/g,""));
+function readForm(){
+  const g = id => (document.getElementById(id)||{}).value?.trim() || "";
+  const pick = document.querySelector("#cPick .on")?.dataset.pick || "delivery";
+  return {name:g("cName"), phone:g("cPhone"), addr:g("cAddr"), note:g("cNote"), pick};
+}
+function validate(){
+  const f = readForm(); let ok = true;
+  const bad = (id,cond)=>{ const el=document.getElementById(id);
+    el.classList.toggle("bad", !cond); if(!cond) ok=false; };
+  bad("f-name",  f.name.length>1);
+  bad("f-phone", phoneOK(f.phone));
+  bad("f-addr",  f.pick === "pickup" || f.addr.length > 3);
+  if(!ok) cartBody.querySelector(".field.bad")?.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
+  return ok ? f : null;
+}
+
+/* ---- the message ---- */
+function orderCode(){ return String(Math.floor(1000+Math.random()*9000)); }
+/* One mark per section of the kitchen, so a glance at the phone sorts the
+   order before it is read. Emojis are four bytes each -- twelve characters
+   once the URL encodes them -- so they are spent where they carry meaning
+   and nowhere else. */
+const CAT_ICON = { hot:"☕", cold:"🧊", mojito:"🍹", shake:"🥤" };
+const RULE = "━━━━━━━━━━";
+
+/* Two shapes of the same order. The laid-out one is what the shop normally
+   gets; `compact` is the same information with the decoration stripped, for
+   an order long enough that the pretty one would not survive the wa.me URL.
+   Sending a plain order beats refusing to send a pretty one. */
+function buildMessage(f,code,compact){
+  const rows = [...cart.values()].map(l=>{
+    const p = byImg(l.img), lab = labelOf(p,l.oi,l.ex);
+    const total = money(unitPrice(p,l.oi,l.ex)*l.q)+" ل.س";
+    if(compact){
+      let s = "• "+p.ar+(lab?" ("+lab+")":"")+" — العدد: "+l.q+" — "+total;
+      if(l.note) s += "\n   "+l.note;
+      return s;
+    }
+    const out = [ (CAT_ICON[p.cat]||"•")+" *"+p.ar+"* · "+catAr(p.cat) ];
+    if(lab) out.push("   الخيار: "+lab);
+    // the word, not the multiplication sign: the shop was reading "×2" as
+    // part of the price. The line total carries the currency
+    out.push("   العدد: "+l.q+" — "+total);
+    if(l.note) out.push("   📝 "+l.note);
+    return out.join("\n");
+  });
+  const pickup = f.pick === "pickup";
+  return [
+    "🧾 *طلب رقم "+code+"*",
+    compact ? "" : RULE, "",
+    rows.join(compact ? "\n" : "\n\n"), "",
+    compact ? "" : RULE,
+    "💰 *المجموع: "+money(cartTotal())+" ل.س*",
+    // a pickup order has no delivery fee and no address to drive to, so
+    // neither line belongs in the message the shop reads
+    pickup ? "" : "🛵 لا يشمل أجرة التوصيل", "",
+    pickup ? "🏪 الاستلام: من الكافيه" : "🏠 التوصيل: إلى المنزل",
+    "👤 الاسم: "+f.name,
+    "📞 الهاتف: "+f.phone,
+    pickup ? "" : "📍 العنوان: "+f.addr,
+    f.note ? "📝 ملاحظة: "+f.note : ""
+  ].join("\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+/* the prettiest form that still fits, in that order */
+function messageForLink(f,code){
+  const full = buildMessage(f,code);
+  if(encodeURIComponent(full).length <= WA_MAX) return full;
+  const lean = buildMessage(f,code,true);
+  return encodeURIComponent(lean).length <= WA_MAX ? lean : null;
+}
+function rememberCustomer(f){
+  try{ localStorage.setItem("bc_cust", JSON.stringify(
+    {name:f.name, phone:f.phone, addr:f.addr})); }catch(e){}
+}
+function repeatLast(){
+  try{
+    const last = JSON.parse(localStorage.getItem("bc_last")||"null");
+    if(!last) return;
+    cart.clear();
+    last.forEach(({k,q,n})=>{
+      const [img,oi,ex] = k.split("|");
+      if(byImg(img)) cart.set(k,{img,oi:+oi,ex:+ex||0,q,note:n});
+    });
+    save(); syncCards(); paintBar(); renderCart();
+  }catch(e){}
+}
+
+/* ---- wiring ---- */
+if(ORDER){
+  load();
+  grid.addEventListener("click", e=>{
+    const btn = e.target.closest(".order-btn");
+    if(!btn) return;
+    openProduct(byImg(btn.dataset.add), btn.closest(".card"));
+  });
+  document.getElementById("cartOpen").addEventListener("click", ()=>{ renderCart(); openSheet(cartSheet); });
+  scrim.addEventListener("click", closeSheets);
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSheets(); });
+  document.querySelectorAll(".sheet-grip").forEach(g=>g.addEventListener("click", closeSheets));
+  document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click", closeSheets));
+
+  document.getElementById("sendBtn").addEventListener("click", ()=>{
+    const f = validate(); if(!f) return;
+    if(!SHOP_WA){ alert("رقم واتساب المحل لم يُضبط بعد."); return; }
+    const code = orderCode();
+    const text = messageForLink(f,code);
+    if(!text){
+      alert("الطلب طويل جداً لإرساله بضغطة واحدة.\nاستخدم «نسخ الطلب كنص» ثم الصقه في واتساب.");
+      return;
+    }
+    rememberCustomer(f);
+    try{
+      localStorage.setItem("bc_last", JSON.stringify(
+        [...cart.entries()].map(([k,l])=>({k,q:l.q,n:l.note||""}))));
+      localStorage.setItem("bc_pending","1");   // ask on the next visit
+    }catch(e){}
+    window.open("https://wa.me/"+SHOP_WA+"?text="+encodeURIComponent(text), "_blank");
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", async ()=>{
+    const f = validate(); if(!f) return;
+    const btn = document.getElementById("copyBtn");
+    try{ await navigator.clipboard.writeText(buildMessage(f,orderCode()));
+         btn.textContent = "تم النسخ ✓"; }
+    catch(e){ btn.textContent = "تعذّر النسخ"; }
+    setTimeout(()=>{ btn.textContent = "نسخ الطلب كنص"; }, 1800);
+  });
+
+  paintBar();
+}
+
+/* ---------- init ---------- */
+document.getElementById("year").textContent = new Date().getFullYear();
+renderGrid("all");
+</script>
+
+<!-- Vercel Web Analytics: cookieless visitor counts. Vercel serves this path
+     itself once Analytics is enabled for the project; on any other host it
+     simply 404s and the page is unaffected. -->
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
