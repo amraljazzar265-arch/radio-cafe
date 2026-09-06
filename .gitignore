@@ -26,3 +26,6 @@ _colors.html
 
 # incoming photo drops — the converted WebPs in assets/menu are what ships
 New data/
+
+# QR codes — تُولَّد عند الحاجة، ليست جزءاً من الموقع المنشور
+qr/
