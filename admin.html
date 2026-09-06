@@ -120,43 +120,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--honey-hi);outli
 @keyframes spin{to{transform:rotate(360deg)}}
 .note{color:var(--muted);font-size:.82rem;line-height:1.7;margin:18px 4px 0;
   padding:14px;border-radius:14px;background:var(--espresso-2);border:1px solid var(--line-soft)}
-
-/* ============================================================
-   مؤقّت — إلى أن تُرفع صور Radio Cafe
-   مسارات الصور في الكود لم تتغيّر إطلاقاً: ضع الصور بنفس الأسماء
-   (assets/menu/… و hero-…) وتظهر وحدها بلا أي تعديل.
-   حتى ذلك الحين تُستبدل الصورة الناقصة بتدرّج لوني بدل أيقونة
-   الصورة المكسورة. للحذف لاحقاً: امسح هذا البلوك وبلوك الـ script
-   الذي يلي وسم إغلاق الستايل مباشرة.
-   ============================================================ */
-img.img-missing{
-  background:
-    radial-gradient(120% 90% at 30% 0%, rgba(200,149,99,.20), transparent 62%),
-    linear-gradient(150deg,#3A2415,#241408 72%);
-  color:transparent;          /* لا يظهر نص alt المكسور */
-}
-.hero-bg{
-  background:
-    radial-gradient(90% 70% at 70% 10%, rgba(200,149,99,.22), transparent 60%),
-    linear-gradient(160deg,#3A2415,#180D08 75%);
-}
-.hero-bg img.img-missing{opacity:0}
 </style>
-<script>
-/* مؤقّت مع طبقة img-missing أعلاه — يُحذف معها بعد رفع الصور.
-   الصورة الناقصة تأخذ الصنف، ومصدرها يُستبدل ببكسل شفاف حتى لا
-   يرسم المتصفّح أيقونة الصورة المكسورة فوق التدرّج. */
-(function () {
-  var BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-  addEventListener("error", function (e) {
-    var el = e.target;
-    if (!el || el.tagName !== "IMG" || el.src === BLANK) return;
-    el.classList.add("img-missing");
-    el.src = BLANK;
-  }, true);
-})();
-</script>
-
 </head>
 <body>
 

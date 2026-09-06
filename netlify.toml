@@ -1,0 +1,69 @@
+# ============================================================
+#   Netlify — إعدادات النشر
+#   موقع ثابت بلا خطوة بناء: جذر المستودع هو الموقع نفسه، ومعه
+#   دالة واحدة (netlify/functions/save.mjs) تحفظ المنيو عبر GitHub.
+#   مسار الدالة معرَّف داخلها بـ config.path، فلا حاجة لتحويل هنا.
+# ============================================================
+
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# ---------- الكاش ----------
+# الصور والشعارات لا تتغيّر إلا باسم جديد، فتُخزَّن أسبوعاً.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/logo/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/hero*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+# الصفحة والمنيو يتغيّران مع كل حفظ من اللوحة، فلا يُخزَّنان.
+# القاعدتان مكرّرتان للمسار النظيف "/" وللملف نفسه، لأن Netlify يقدّم
+# الاثنين وترويسة الملف وحدها لا تلحق بالمسار النظيف.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/menu.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# اللوحة: لا تُخزَّن أبداً ولا تُفهرَس. المسار النظيف "/admin" هو
+# ما يستعمله صاحب المحل فعلياً، فلا يكفي وضعها على الملف وحده.
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
+# مصدر الدالة يعيش داخل المجلّد المنشور، فيُمنع تقديمه كملف ثابت.
+# لا سرّ فيه — المفاتيح كلها متغيّرات بيئة — لكن لا داعي لعرضه.
+[[redirects]]
+  from = "/netlify/*"
+  to = "/index.html"
+  status = 404

@@ -2,20 +2,27 @@
    Saves the menu.
 
    The panel sends the whole menu and this writes it to menu.js in the
-   repository; Vercel sees the commit and republishes the site. That is the
+   repository; Netlify sees the commit and republishes the site. That is the
    entire storage layer -- git is the database, which means every price
    change has an author, a time, and a way back.
 
    The GitHub token never reaches the browser. It lives here, in the
    environment, and the panel authenticates with a password instead. Three
-   variables are required on Vercel:
+   variables are required on Netlify
+   (Site configuration -> Environment variables):
 
      ADMIN_PASSWORD   the password the panel asks for
      GITHUB_TOKEN     fine-grained token, Contents: read and write, this repo
-     GITHUB_REPO      owner/name, e.g. your-account/radio-cafe
+     GITHUB_REPO      owner/name, e.g. amraljazzar265-arch/radio-cafe
 
    GITHUB_BRANCH is optional and defaults to main.
    ============================================================ */
+
+/* Netlify Functions v2 declares its own route, so the endpoint and the code
+   that answers it stay in one file instead of being wired up from
+   netlify.toml. The panel keeps calling /api/save exactly as it did on
+   Vercel -- nothing in admin.html changes. */
+export const config = { path: "/api/save" };
 
 const FILE = "menu.js";
 const API = "https://api.github.com";
@@ -96,14 +103,21 @@ async function gh(path, token, init = {}) {
   return body;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "POST فقط" });
+const json = (status, body) => Response.json(body, { status });
+
+export default async function handler(req) {
+  if (req.method !== "POST") return json(405, { error: "POST فقط" });
 
   const { ADMIN_PASSWORD, GITHUB_TOKEN, GITHUB_REPO, GITHUB_BRANCH } = process.env;
   if (!ADMIN_PASSWORD || !GITHUB_TOKEN || !GITHUB_REPO)
-    return res.status(500).json({ error: "الإعدادات ناقصة على الخادم (ADMIN_PASSWORD / GITHUB_TOKEN / GITHUB_REPO)" });
+    return json(500, { error: "الإعدادات ناقصة على الخادم (ADMIN_PASSWORD / GITHUB_TOKEN / GITHUB_REPO)" });
 
-  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+  /* v2 hands over a standard Request, so the body is read here rather than
+     arriving parsed. A malformed body is a bad request, not a crash. */
+  let body;
+  try { body = await req.json(); }
+  catch (e) { return json(400, { error: "طلب غير صالح" }); }
+  if (!body || typeof body !== "object") body = {};
 
   /* Constant-time-ish compare. The password is short and the endpoint is not
      a login form, but a length check first costs nothing. */
@@ -111,15 +125,15 @@ export default async function handler(req, res) {
   let ok = given.length === ADMIN_PASSWORD.length;
   for (let i = 0; i < ADMIN_PASSWORD.length; i++)
     if (given[i] !== ADMIN_PASSWORD[i]) ok = false;
-  if (!ok) return res.status(401).json({ error: "كلمة السر غير صحيحة" });
+  if (!ok) return json(401, { error: "كلمة السر غير صحيحة" });
 
-  if (body.check) return res.status(200).json({ ok: true });   // the panel's door test
+  if (body.check) return json(200, { ok: true });   // the panel's door test
 
   let file;
   try {
     file = render(clean(body.menu));
   } catch (e) {
-    return res.status(400).json({ error: e.message });
+    return json(400, { error: e.message });
   }
 
   const branch = GITHUB_BRANCH || "main";
@@ -137,8 +151,8 @@ export default async function handler(req, res) {
         branch,
       }),
     });
-    return res.status(200).json({ ok: true, commit: put.commit?.sha?.slice(0, 7) || null });
+    return json(200, { ok: true, commit: put.commit?.sha?.slice(0, 7) || null });
   } catch (e) {
-    return res.status(502).json({ error: e.message });
+    return json(502, { error: e.message });
   }
 }

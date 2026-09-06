@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#180D08" />
 <link rel="icon" type="image/webp" href="logo.webp" />
 <link rel="apple-touch-icon" href="logo.webp" />
-<link rel="preload" as="font" type="font/ttf" href="The-originals.ttf" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="The-originals.woff2" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <!-- only the weights actually used, loaded without blocking first paint -->
@@ -18,7 +18,7 @@
 /* خط شريط الفئات — ملف محلي بجذر المشروع */
 @font-face{
   font-family:"The Originals";
-  src:url("The-originals.ttf") format("truetype");
+  src:url("The-originals.woff2") format("woff2");
   font-weight:400;
   font-style:normal;
   font-display:swap;
@@ -1152,36 +1152,7 @@ body.locked{overflow:hidden}
   .cart-bar{transition:none}
   .sheet-body,.sheet-foot{opacity:1;transform:none;transition:none}
 }
-
-/* ============================================================
-   مؤقّت — إلى أن تُرفع صور Radio Cafe
-   مسارات الصور في الكود لم تتغيّر إطلاقاً: ضع الصور بنفس الأسماء
-   (assets/menu/… و hero-…) وتظهر وحدها بلا أي تعديل.
-   حتى ذلك الحين تُستبدل الصورة الناقصة بتدرّج لوني بدل أيقونة
-   الصورة المكسورة. للحذف لاحقاً: امسح هذا البلوك وبلوك الـ script
-   الذي يلي وسم إغلاق الستايل مباشرة.
-   ============================================================ */
-img.img-missing{
-  background:
-    radial-gradient(120% 90% at 30% 0%, rgba(200,149,99,.20), transparent 62%),
-    linear-gradient(150deg,#3A2415,#241408 72%);
-  color:transparent;          /* لا يظهر نص alt المكسور */
-}
 </style>
-<script>
-/* مؤقّت مع طبقة img-missing أعلاه — يُحذف معها بعد رفع الصور.
-   الصورة الناقصة تأخذ الصنف، ومصدرها يُستبدل ببكسل شفاف حتى لا
-   يرسم المتصفّح أيقونة الصورة المكسورة فوق التدرّج. */
-(function () {
-  var BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-  addEventListener("error", function (e) {
-    var el = e.target;
-    if (!el || el.tagName !== "IMG" || el.src === BLANK) return;
-    el.classList.add("img-missing");
-    el.src = BLANK;
-  }, true);
-})();
-</script>
 <script>
 /* Runs before the body paints: a visitor who has already seen the intro, or
    who asked the system for less motion, never catches a flash of it. */
@@ -2582,7 +2553,8 @@ function orderCode(){ return String(Math.floor(1000+Math.random()*9000)); }
    order before it is read. Emojis are four bytes each -- twelve characters
    once the URL encodes them -- so they are spent where they carry meaning
    and nowhere else. */
-const CAT_ICON = { hot:"☕", cold:"🧊", mojito:"🍹", shake:"🥤" };
+const CAT_ICON = { hot:"☕", cold:"🧊", mojito:"🍹", shake:"🥤",
+                   sweets:"🧁", juice:"🧃", panpop:"🍰" };
 const RULE = "━━━━━━━━━━";
 
 /* Two shapes of the same order. The laid-out one is what the shop normally
@@ -2695,10 +2667,5 @@ if(ORDER){
 document.getElementById("year").textContent = new Date().getFullYear();
 renderGrid("all");
 </script>
-
-<!-- Vercel Web Analytics: cookieless visitor counts. Vercel serves this path
-     itself once Analytics is enabled for the project; on any other host it
-     simply 404s and the page is unaffected. -->
-<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
