@@ -29,6 +29,19 @@
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
 
+# ملفّان بالجذر يُحمَّلان بكل زيارة، ولا تلتقطهما القاعدتان فوق:
+# "/logo/*" تطابق المجلّد لا الملف، والخط لم تكن له قاعدة إطلاقاً.
+# بدونهما كان المتصفّح يسأل عنهما في كل مرة (304) بلا داعٍ.
+[[headers]]
+  for = "/logo.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/The-originals.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
 # الصفحة والمنيو يتغيّران مع كل حفظ من اللوحة، فلا يُخزَّنان.
 # القاعدتان مكرّرتان للمسار النظيف "/" وللملف نفسه، لأن Netlify يقدّم
 # الاثنين وترويسة الملف وحدها لا تلحق بالمسار النظيف.
