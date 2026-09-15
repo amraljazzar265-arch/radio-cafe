@@ -42,6 +42,12 @@
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
 
+# خط التوقيع (Ephesis) ملف بالجذر أيضاً، فيحتاج قاعدته.
+[[headers]]
+  for = "/Ephesis.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
 # الصفحة والمنيو يتغيّران مع كل حفظ من اللوحة، فلا يُخزَّنان.
 # القاعدتان مكرّرتان للمسار النظيف "/" وللملف نفسه، لأن Netlify يقدّم
 # الاثنين وترويسة الملف وحدها لا تلحق بالمسار النظيف.

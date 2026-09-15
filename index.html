@@ -23,6 +23,14 @@
   font-style:normal;
   font-display:swap;
 }
+/* خط توقيع المصمّم — نفس خط اسمه على لوحة الزجاج A، مقصوص للحروف اللاتينية */
+@font-face{
+  font-family:"Ephesis";
+  src:url("Ephesis.woff") format("woff");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
 
 /* ============================================================
    RADIO CAFE — Design tokens
@@ -51,6 +59,7 @@
   --font-body:"Tajawal", system-ui, sans-serif;
   --font-latin:"Fredoka", system-ui, sans-serif;
   --font-brand:"The Originals", var(--font-display);
+  --font-sign:"Ephesis", var(--font-latin);   /* the designer's signature only */
   /* خط العرض: للعناوين والأسماء والأسعار فقط. ملف بوزن واحد (400) وبلا
      تشكيل — لذلك لا يُستعمل في النصوص الصغيرة ولا في أي نص فيه شدّة. */
   /* خطّ الطابع الشرقي القديم — لعناوين الهيرو، ويمكن تعميمه لاحقاً */
@@ -627,38 +636,41 @@ html.intro-on{overflow:hidden}
   padding-top:24px;border-top:1px solid var(--line-soft);font-family:var(--font-latin)}
 
 /* ============================================================
-   Built-by credit (OMHA) + the entry toast that points at it
+   Built-by credit + the entry toast that points at it
    ============================================================ */
-.omha{margin-top:44px;padding:20px 22px;border-radius:20px;
+.credit{margin-top:44px;padding:20px 22px;border-radius:20px;
   border:1px solid var(--line-soft);background:rgba(46,27,16,.32);
   display:flex;align-items:center;gap:16px;flex-wrap:wrap;scroll-margin-top:92px}
-.omha-logo{width:64px;height:64px;border-radius:50%;flex-shrink:0;
-  box-shadow:0 0 0 2px rgba(123,63,242,.5),0 10px 26px rgba(0,0,0,.45)}
-.omha-txt{flex:1;min-width:160px}
-.omha-eyebrow{display:block;font-size:.78rem;color:var(--muted)}
-.omha-name{font-family:var(--font-display);font-weight:700;font-size:1.1rem;
-  color:var(--cream);margin-top:.2em}
-.omha-links{display:flex;gap:10px}
-.omha-links a{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+.credit-txt{flex:1;min-width:160px}
+.credit-eyebrow{display:block;font-size:.78rem;color:var(--muted)}
+/* The signature -- the same Ephesis script as the name on glass board A.
+   The face has one thin weight, so a stroke painted behind the fill gives it
+   body without closing its loops, and honey, the brightest warm on the page,
+   with a soft glow makes it the thing the eye lands on. */
+.credit-name,.dev-toast-main b{font-family:var(--font-sign);font-weight:400;
+  color:var(--honey-hi);-webkit-text-stroke:.05em var(--honey-hi);paint-order:stroke fill}
+.credit-name{font-size:2.6rem;line-height:1.3;margin-top:.05em;
+  text-shadow:0 0 24px rgba(240,181,90,.45),0 2px 12px rgba(0,0,0,.55)}
+.credit-links{display:flex;gap:10px}
+.credit-links a{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
   background:var(--espresso-3);border:1px solid var(--line);color:var(--cream);
   transition:transform .2s,background .2s,color .2s,border-color .2s}
-.omha-links a:hover,.omha-links a:focus-visible{transform:translateY(-3px);
-  background:linear-gradient(135deg,#2F6BE8,#7B3FF2);color:#fff;border-color:transparent}
-.omha-links svg{width:18px;height:18px}
+.credit-links a:hover,.credit-links a:focus-visible{transform:translateY(-3px);
+  background:var(--caramel);color:#2a1509;border-color:transparent}
+.credit-links svg{width:18px;height:18px}
 
 /* slides in from the right a moment after the page opens */
 .dev-toast{position:fixed;top:84px;right:16px;z-index:70;
-  display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;
+  display:flex;align-items:center;gap:8px;padding:8px 16px 8px 8px;
   border-radius:999px;max-width:min(320px,calc(100vw - 32px));
-  background:linear-gradient(135deg,rgba(19,14,34,.96),rgba(24,13,8,.96));
-  border:1px solid rgba(123,63,242,.45);box-shadow:0 14px 34px rgba(0,0,0,.5);
+  background:linear-gradient(135deg,rgba(46,27,16,.96),rgba(24,13,8,.96));
+  border:1px solid rgba(200,149,99,.45);box-shadow:0 14px 34px rgba(0,0,0,.5);
   transform:translateX(120%);opacity:0;pointer-events:none;
   transition:transform .55s var(--ease),opacity .45s var(--ease)}
 .dev-toast.is-in{transform:none;opacity:1;pointer-events:auto}
 .dev-toast-main{display:flex;align-items:center;gap:10px;color:var(--cream);
   font-family:var(--font-display);font-weight:600;font-size:.85rem;line-height:1.35}
-.dev-toast-main img{width:38px;height:38px;border-radius:50%;flex-shrink:0}
-.dev-toast-main b{color:#A98BFF;font-weight:800}
+.dev-toast-main b{font-size:2em;line-height:1;text-shadow:0 0 14px rgba(240,181,90,.5)}
 .dev-toast-close{width:26px;height:26px;border-radius:50%;flex-shrink:0;
   display:grid;place-items:center;background:transparent;border:0;
   color:var(--muted);font-size:1.15rem;line-height:1;padding:0;
@@ -697,11 +709,10 @@ html.intro-on{overflow:hidden}
   .scroll-cue{font-size:.8rem;gap:6px}
   .scroll-cue .mouse{width:21px;height:33px}
 
-  .dev-toast{top:80px;right:10px;padding:7px 9px 7px 7px}
+  .dev-toast{top:80px;right:10px;padding:7px 14px 7px 7px}
   .dev-toast-main{font-size:.8rem}
-  .dev-toast-main img{width:34px;height:34px}
-  .omha{padding:18px;gap:14px}
-  .omha-logo{width:56px;height:56px}
+  .credit{padding:18px;gap:14px}
+  .credit-name{font-size:2rem}
 }
 @media(min-width:761px) and (max-width:1024px){
   :root{--gal-radius:360px;--gal-cardw:240px;--gal-cardh:330px}
@@ -1311,15 +1322,13 @@ body.locked{overflow:hidden}
       </div>
     </div>
     <!-- who built it -->
-    <section class="omha" id="omha" aria-labelledby="omhaName">
-      <img class="omha-logo" src="logo/omha-256.webp" alt="OMHA" width="256" height="256" loading="lazy" decoding="async" />
-      <div class="omha-txt">
-        <span class="omha-eyebrow">تنفيذ وتطوير الموقع</span>
-        <div class="omha-name" id="omhaName">شركة OMHA للبرمجيات</div>
+    <section class="credit" id="credit" aria-labelledby="creditName">
+      <div class="credit-txt">
+        <span class="credit-eyebrow">تنفيذ وتطوير الموقع</span>
+        <div class="credit-name" id="creditName"><bdi dir="ltr">eng.amr-jazar</bdi></div>
       </div>
-      <div class="omha-links">
-        <a href="https://wa.me/963932797314" target="_blank" rel="noopener" aria-label="واتساب OMHA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.5 9c0 3 2.5 5.5 5.5 5.5"/></svg></a>
-        <a href="https://www.instagram.com/omha.io" target="_blank" rel="noopener" aria-label="إنستغرام OMHA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg></a>
+      <div class="credit-links">
+        <a href="https://wa.me/963932797314" target="_blank" rel="noopener" aria-label="واتساب eng.amr-jazar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.5 9c0 3 2.5 5.5 5.5 5.5"/></svg></a>
       </div>
     </section>
     <div class="copyright">© <span id="year"></span> Radio Cafe — على موجة الزمن الجميل · جميع الحقوق محفوظة</div>
@@ -1328,9 +1337,8 @@ body.locked{overflow:hidden}
 
 <!-- ===== Built-by toast — slides in on arrival, jumps to the credit ===== -->
 <aside class="dev-toast" id="devToast" aria-label="مطوّر الموقع">
-  <a class="dev-toast-main" href="#omha">
-    <img src="logo/omha-256.webp" alt="" width="256" height="256" decoding="async" />
-    <span>تنفيذ شركة <b>OMHA</b></span>
+  <a class="dev-toast-main" href="#credit">
+    <span>تنفيذ وتصميم <b><bdi dir="ltr">eng.amr-jazar</bdi></b></span>
   </a>
   <button class="dev-toast-close" type="button" aria-label="إغلاق الإشعار">&times;</button>
 </aside>
