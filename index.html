@@ -109,6 +109,9 @@ body::before{
 .hb svg{width:100%;height:100%;display:block;overflow:visible;
   fill:none;stroke:url(#hbGrad);stroke-width:1.6;stroke-linejoin:round;
   transform-origin:50% 55%;
+  /* its own layer: without it the beat's scale re-painted the rising span's
+     layer on every frame, for every heart, for as long as the page was open */
+  will-change:transform;
   animation:hbBeat 2.9s ease-in-out infinite}
 /* the drift up the page -- opacity fades in off the bottom edge and out
    before the top, so a heart never pops or clips */
@@ -198,6 +201,10 @@ section{position:relative;z-index:1}
   margin:0;justify-self:center;width:100%;max-width:460px;
   perspective:1000px}
 .hero-shot-frame{position:relative;aspect-ratio:1/1;padding:var(--shot-gap);
+  /* the float moves this box forever, and it holds a url() clip-path and a
+     40px drop-shadow -- both re-painted each frame unless the box is its own
+     layer, painted once and then only moved */
+  will-change:transform;
   /* the outline is drawn by the SVG below, which can follow the split corners
      -- a border cannot leave the rounded-rectangle family */
   background:transparent;
@@ -348,6 +355,10 @@ html.intro-on{overflow:hidden}
   .gal-name.is-front .gal-pill::after{animation:galRingSpin 2.8s linear infinite}
 }
 @keyframes galRingSpin{to{--gal-ring:360deg}}
+/* A name is always "front", so its ring used to spin -- on the main thread, a
+   registered property -- for as long as the page was open, hero included.
+   It turns only while the gallery is actually in view. */
+.gal-scroll.is-away .gal-pill::after{animation-play-state:paused}
 .gal-stage{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
   perspective:2000px;
   /* the browser keeps vertical panning, we get the horizontal gesture */
@@ -402,6 +413,10 @@ html.intro-on{overflow:hidden}
     animation:tabGlow 4s linear infinite}
 }
 @keyframes tabGlow{to{--tab-angle:360deg}}
+/* The selected tab's glow animates a registered property, which runs on the
+   main thread on every frame -- including all the time the tab row is scrolled
+   out of sight above the gallery. Out of sight, it stands still. */
+.tabs.is-away .tab::before,.tabs.is-away .tab::after{animation-play-state:paused}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:36px}
 .cat-title{grid-column:1/-1;display:flex;align-items:center;gap:14px;
@@ -1571,6 +1586,10 @@ CATS.forEach((c,i)=>{
   });
   tabsEl.appendChild(b);
 });
+if("IntersectionObserver" in window){
+  new IntersectionObserver(es=>es.forEach(e=>tabsEl.classList.toggle("is-away", !e.isIntersecting)))
+    .observe(tabsEl);
+}
 
 /* ---------- 3D pointer tilt (enhances the hover lift) ---------- */
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1722,11 +1741,16 @@ let galVisible = true, galRunning = false;
 if("IntersectionObserver" in window){
   new IntersectionObserver(es=>{
     es.forEach(e=>{
-      galVisible = e.isIntersecting;
+      galVisible = e.isIntersecting && e.intersectionRatio >= .15;
+      galScroll.classList.toggle("is-away", !galVisible);
       if(galVisible) startGal();          // resume the ring only when on screen
       else { spun = 0; handedOff = false; }
     });
-  },{threshold:0}).observe(galScroll);
+  /* A sliver is not "on screen". At the top of a phone the stage's first 32px
+     already peek above the fold, and threshold 0 kept the ring turning --
+     sixteen style writes a frame -- behind a hero nobody had scrolled past.
+     isIntersecting stays true below a threshold, hence the ratio test. */
+  },{threshold:[0,.15]}).observe(stage);
 }
 
 let dragging = false, lastX = 0;
@@ -1776,6 +1800,10 @@ const galItems = ring.querySelectorAll(".gal-item");
 /* Everything a card shows -- where along the arc it sits, how far it has
    tipped over with the curve, how big it is and how present -- comes from one
    number: how many cards it stands from the crest. */
+/* Every frame used to write transform, opacity and z-index on sixteen
+   elements whether or not they had changed. A write of the same string still
+   dirties style, so unchanged values are skipped. */
+function put(el, k, v){ if(el["_" + k] !== v){ el["_" + k] = v; el.style[k] = v; } }
 function placeCards(offset){
   galItems.forEach((el,i)=>{
     let p = (i + offset) % N;              // signed distance from the crest
@@ -1786,17 +1814,24 @@ function placeCards(offset){
     const x  = ARC_R * Math.sin(a);
     const y  = ARC_R * (1 - Math.cos(a));  // the fall away from the crest
     const sc = Math.max(.52, 1 - ad * ARC_SHRINK);
-    el.style.transform =
+    /* A card or a name that is fully transparent, and was last frame too,
+       cannot be seen moving, so its transform is left until it fades back in.
+       On a phone that is six of the eight names on every single frame. */
+    const co = ad < ARC_VIS ? Math.max(0, 1 - ad * .28) : 0;
+    if(co > .001 || el._seen) put(el, "transform",
       "translate3d("+x.toFixed(1)+"px,"+y.toFixed(1)+"px,0)"+
       " rotate("+(p * ARC_STEP * ARC_TILT).toFixed(2)+"deg)"+
-      " scale("+sc.toFixed(3)+")";
-    el.style.opacity = ad < ARC_VIS ? Math.max(0, 1 - ad * .28).toFixed(3) : "0";
-    el.style.zIndex  = String(100 - Math.round(ad * 10));
+      " scale("+sc.toFixed(3)+")");
+    el._seen = co > .001;
+    put(el, "opacity", co > .001 ? co.toFixed(3) : "0");
+    put(el, "zIndex", String(100 - Math.round(ad * 10)));
     el.classList.toggle("is-front", ad < .5);
     const nm = nameEls[i];
     if(nm){
-      nm.style.transform = "translateX("+(p * NAME_GAP).toFixed(1)+"px)";
-      nm.style.opacity = ad < ARC_VIS ? Math.max(0, 1 - ad * NAME_FADE).toFixed(3) : "0";
+      const no = ad < ARC_VIS ? Math.max(0, 1 - ad * NAME_FADE) : 0;
+      if(no > .001 || nm._seen) put(nm, "transform", "translateX("+(p * NAME_GAP).toFixed(1)+"px)");
+      nm._seen = no > .001;
+      put(nm, "opacity", no > .001 ? no.toFixed(3) : "0");
       nm.classList.toggle("is-front", ad < .5);
     }
   });
